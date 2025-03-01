@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const BuscarTrabajadorEPP = () => {
     const [cedula, setCedula] = useState("");
@@ -42,6 +44,199 @@ const BuscarTrabajadorEPP = () => {
         console.log("Datos de las entregas:", entregas);
     };
 
+    // Función para descargar la tabla en PDF
+
+    // const handleDescargarPDF = () => {
+    //     if (!trabajador || entregas.length === 0) {
+    //         Swal.fire("Error", "No hay datos para descargar", "error");
+    //         return;
+    //     }
+
+    //     // Selecciona el contenedor que contiene los datos del trabajador y la tabla de entregas
+    //     const input = document.querySelector(".epp-container");
+
+    //     if (!input) {
+    //         Swal.fire("Error", "No se encontró el contenido para generar el PDF", "error");
+    //         return;
+    //     }
+
+    //     // Usa html2canvas para capturar el contenido como una imagen
+    //     html2canvas(input).then((canvas) => {
+    //         const imgData = canvas.toDataURL("image/png");
+    //         const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
+
+    //         // Tamaño de la imagen en el PDF
+    //         const imgWidth = 210; // Ancho de A4 en mm
+    //         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    //         // Agrega la imagen al PDF
+    //         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+    //         // Descarga el PDF
+    //         pdf.save(`entregas_epp_${trabajador.cedula}.pdf`);
+    //     });
+    // };
+    
+    const handleDescargarPDF = () => {
+        if (!trabajador || entregas.length === 0) {
+            Swal.fire("Error", "No hay datos para descargar", "error");
+            return;
+        }
+    
+        // Ocultar la barra de búsqueda y otros elementos no deseados
+        const searchBar = document.querySelector(".epp-search");
+        const title = document.querySelector(".epp-title");
+        const buttons = document.querySelectorAll(".epp-button");
+
+        if (searchBar) searchBar.style.display = "none"; // Ocultar la barra de búsqueda
+        if (title) title.style.display = "none"; // Ocultar el título
+        buttons.forEach((button) => {
+            button.style.display = "none"; // Ocultar los botones
+    });
+    
+        // Crear un nuevo elemento para el encabezado personalizado
+        const header = document.createElement("div");
+        header.innerHTML = `
+            <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">COMPROBANTES DE ENTREGAS EPP UNIPALMA</h1>
+        `;
+        header.style.textAlign = "center";
+        header.style.marginBottom = "20px";
+    
+        // Insertar el encabezado antes de la tabla
+        const container = document.querySelector(".epp-container");
+        if (container) {
+            container.insertBefore(header, container.firstChild); // Agregar el encabezado al inicio
+        }
+    
+        // Capturar el contenido del contenedor
+        html2canvas(container).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
+    
+            // Tamaño de la imagen en el PDF
+            const imgWidth = 210; // Ancho de A4 en mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+            // Agregar la imagen al PDF
+            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    
+            // Descargar el PDF
+            pdf.save(`comprobante_entregas_epp_${trabajador.cedula}.pdf`);
+    
+            // Restaurar los elementos ocultos después de la descarga
+            if (searchBar) searchBar.style.display = "block"; // Restaurar la barra de búsqueda
+            if (title) title.style.display = "block"; // Restaurar el título
+            buttons.forEach((button) => {
+                button.style.display = "block"; // Restaurar visibilidad de los botones
+            });
+    
+            // Eliminar el encabezado personalizado
+            if (header && container) {
+                container.removeChild(header);
+            }
+        });
+
+    // // Ocultar elementos no deseados temporalmente
+    // const searchBar = document.querySelector(".epp-search");
+    // const title = document.querySelector(".epp-title");
+    // const buttons = document.querySelectorAll(".epp-button");
+
+    // if (searchBar) searchBar.style.display = "none"; // Ocultar la barra de búsqueda
+    // if (title) title.style.display = "none"; // Ocultar el título
+    // buttons.forEach((button) => {
+    //     button.style.display = "none"; // Ocultar los botones
+    // });
+
+    // // Crear un nuevo elemento para el encabezado personalizado
+    // const header = document.createElement("div");
+    // header.innerHTML = `
+    //     <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">COMPROBANTES DE ENTREGAS EPP UNIPALMA</h1>
+    // `;
+    // header.style.textAlign = "center";
+    // header.style.marginBottom = "20px";
+
+    // // Insertar el encabezado antes de la tabla
+    // const container = document.querySelector(".epp-container");
+    // if (container) {
+    //     container.insertBefore(header, container.firstChild); // Agregar el encabezado al inicio
+    // }
+
+    // // Capturar el contenido del contenedor
+    // html2canvas(container).then((canvas) => {
+    //     const imgData = canvas.toDataURL("image/png");
+    //     const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
+
+    //     // Tamaño de la imagen en el PDF
+    //     const imgWidth = 210; // Ancho de A4 en mm
+    //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    //     // Agregar la imagen al PDF
+    //     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+
+    //     // Descargar el PDF
+    //     pdf.save(`comprobante_entregas_epp_${trabajador.cedula}.pdf`);
+
+    //     // Restaurar los elementos ocultos después de la descarga
+    //     if (searchBar) searchBar.style.display = "block"; // Restaurar la barra de búsqueda
+    //     if (title) title.style.display = "block"; // Restaurar el título
+    //     buttons.forEach((button) => {
+    //         button.style.display = "block"; // Restaurar visibilidad de los botones
+    //     });
+
+    //     // Eliminar el encabezado personalizado
+    //     if (header && container) {
+    //         container.removeChild(header);
+    //     }
+    // });
+};
+
+    // Funcion para descargar tabla en archivo CSV
+    const handleDescargarTabla = () => {
+        if (!trabajador || entregas.length === 0) {
+            Swal.fire("Error", "No hay datos para descargar", "error");
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        const headers = [
+            "Nombre",
+            "Apellido",
+            "Cédula",
+            "Fecha de Entrega",
+            "EPP Entregado",
+            "Referencia/Tipo",
+            "Nombre Quien Entrega",
+            "Tarea/Labor",
+        ];
+        csvContent += headers.join(",") + "\n";
+
+        entregas.forEach((entrega) => {
+            const fechaValida = new Date(entrega.fecha_entrega);
+            const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
+
+            const row = [
+                trabajador.nombre,
+                trabajador.apellido,
+                trabajador.cedula,
+                fechaFormateada,
+                entrega.epp_entregado,
+                entrega.referencia_tipo,
+                entrega.nombre_hs_entrega,
+                entrega.tarea_labor,
+            ];
+            csvContent += row.join(",") + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `entregas_${trabajador.cedula}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
     return (
         <div className="body-epp">
             {/* Menú de navegación */}
@@ -66,7 +261,7 @@ const BuscarTrabajadorEPP = () => {
 
             {/* Contenedor principal */}
             <div className="epp-container">
-                <h1 className="epp-title">Buscar Trabajador y Entregas de EPP</h1>
+                <h1 className="epp-title hidden-for-pdf">Buscar Trabajador y Entregas de EPP</h1>
 
                 {/* Búsqueda por cédula */}
                 <div className="epp-search">
@@ -109,92 +304,100 @@ const BuscarTrabajadorEPP = () => {
 
                 {/* Tabla de entregas */}
                 {entregas.length > 0 && (
-                    <table className="epp-table epp-delivery-table">
-                        <thead>
-                            <tr>
-                                <th className="epp-th">ITEM</th>
-                                <th className="epp-th">FECHA</th>
-                                <th className="epp-th">EPP ENTREGADO</th>
-                                <th className="epp-th">REFERENCIA/TIPO</th>
-                                <th className="epp-th">NOMBRE QUIEN ENTREGA</th>
-                                <th className="epp-th">TAREA/LABOR</th>
-                                <th className="epp-th">HUELLA DIGITAL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {entregas.map((entrega, index) => {
-                                // Validar que la fecha sea válida
-                                const fechaValida = new Date(entrega.fecha_entrega);
-                                const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
+                    <div>
+                        <button className="epp-button hidden-for-pdff" onClick={handleDescargarPDF}>
+                            Descargar PDF
+                        </button>
+                        <button className="epp-button hidden-for-pdff" onClick={handleDescargarTabla}>
+                             Descargar Tabla
+                        </button>
+                        <table className="epp-table epp-delivery-table">
+                            <thead>
+                                <tr>
+                                    <th className="epp-th">ITEM</th>
+                                    <th className="epp-th">FECHA</th>
+                                    <th className="epp-th">EPP ENTREGADO</th>
+                                    <th className="epp-th">REFERENCIA/TIPO</th>
+                                    <th className="epp-th">NOMBRE QUIEN ENTREGA</th>
+                                    <th className="epp-th">TAREA/LABOR</th>
+                                    <th className="epp-th">HUELLA DIGITAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {entregas.map((entrega, index) => {
+                                    // Validar que la fecha sea válida
+                                    const fechaValida = new Date(entrega.fecha_entrega);
+                                    const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
 
-                                return (
-                                    <tr key={entrega._id}>
-                                        <td className="epp-td">{index + 1}</td>
-                                        <td className="epp-td">
-                                            <input
-                                                type="text"
-                                                value={fechaFormateada} // Usar la fecha validada
-                                                className="epp-input"
-                                                readOnly
-                                            />
-                                        </td>
-                                        <td className="epp-td">
-                                            <input
-                                                type="text"
-                                                value={entrega.epp_entregado}
-                                                className="epp-input"
-                                                readOnly
-                                            />
-                                        </td>
-                                        <td className="epp-td">
-                                            <input
-                                                type="text"
-                                                value={entrega.referencia_tipo}
-                                                className="epp-input"
-                                                readOnly
-                                            />
-                                        </td>
-                                        <td className="epp-td">
-                                            <input
-                                                type="text"
-                                                value={entrega.nombre_hs_entrega}
-                                                className="epp-input"
-                                                readOnly
-                                            />
-                                        </td>
-                                        <td className="epp-td">
-                                            <input
-                                                type="text"
-                                                value={entrega.tarea_labor}
-                                                className="epp-input"
-                                                readOnly
-                                            />
-                                        </td>
-                                        <td className="epp-td">
-                                            <div className="fingerprint-container">
+                                    return (
+                                        <tr key={entrega._id}>
+                                            <td className="epp-td">{index + 1}</td>
+                                            <td className="epp-td">
                                                 <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="fingerprint-input"
-                                                    id={`fingerprint-${index}`}
+                                                    type="text"
+                                                    value={fechaFormateada} // Usar la fecha validada
+                                                    className="epp-input"
+                                                    readOnly
                                                 />
-                                                <label
-                                                    htmlFor={`fingerprint-${index}`}
-                                                    className="fingerprint-label"
-                                                >
-                                                    <img
-                                                        src="placeholder-fingerprint.png"
-                                                        alt="Subir huella"
-                                                        className="fingerprint-image"
+                                            </td>
+                                            <td className="epp-td">
+                                                <input
+                                                    type="text"
+                                                    value={entrega.epp_entregado}
+                                                    className="epp-input"
+                                                    readOnly
+                                                />
+                                            </td>
+                                            <td className="epp-td">
+                                                <input
+                                                    type="text"
+                                                    value={entrega.referencia_tipo}
+                                                    className="epp-input"
+                                                    readOnly
+                                                />
+                                            </td>
+                                            <td className="epp-td">
+                                                <input
+                                                    type="text"
+                                                    value={entrega.nombre_hs_entrega}
+                                                    className="epp-input"
+                                                    readOnly
+                                                />
+                                            </td>
+                                            <td className="epp-td">
+                                                <input
+                                                    type="text"
+                                                    value={entrega.tarea_labor}
+                                                    className="epp-input"
+                                                    readOnly
+                                                />
+                                            </td>
+                                            <td className="epp-td">
+                                                <div className="fingerprint-container">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="fingerprint-input"
+                                                        id={`fingerprint-${index}`}
                                                     />
-                                                </label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                                    <label
+                                                        htmlFor={`fingerprint-${index}`}
+                                                        className="fingerprint-label"
+                                                    >
+                                                        <img
+                                                            src="placeholder-fingerprint.png"
+                                                            alt="Subir huella"
+                                                            className="fingerprint-image"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
         </div>

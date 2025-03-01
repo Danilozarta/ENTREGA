@@ -2071,3 +2071,12 @@
         /* estilos nabvar */
           /* estilos nabvar */
           /* diseño.css */ 
+
+
+ /* Estilos para la descarga de pdf */
+  /* Estilos para la descarga de pdf */
+   /* Estilos para la descarga de pdf */
+    /* Estilos para la descarga de pdf */
+    .hidden-for-pdf {
+      display: none;
+  }
