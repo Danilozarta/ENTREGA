@@ -16,7 +16,7 @@ const RegistroTrabajador = () => {
     const [apellido, setApellido] = useState('');
     const [cedula, setCedula] = useState('');
     const [cargo, setCargo] = useState('');
-    const [area, setArea] = useState('');
+    const [centro_de_operacion, setcentro_de_operacion] = useState('');
     const [empresa, setEmpresa] = useState('');
     const [contacto, setContacto] = useState('');
 
@@ -28,7 +28,7 @@ const RegistroTrabajador = () => {
             apellido,
             cedula,
             cargo,
-            area,
+            centro_de_operacion,
             empresa,
             contacto,
         };
@@ -132,14 +132,14 @@ const RegistroTrabajador = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="area" className="registro-label">
-                            Área:
+                        <label htmlFor="centro_de_operacion" className="registro-label">
+                            Centro de operacion:
                         </label>
                         <input
                             type="text"
-                            id="area"
-                            value={empresa}
-                            onChange={(e) => setEmpresa(e.target.value)}
+                            id="centro_de_operacion"
+                            value={centro_de_operacion}
+                            onChange={(e) => setcentro_de_operacion(e.target.value)}
                             className="registro-input"
                             required
                         />
@@ -151,8 +151,8 @@ const RegistroTrabajador = () => {
                         <input
                             type="text"
                             id="empresa"
-                            value={contacto}
-                            onChange={(e) => setContacto(e.target.value)}
+                            value={empresa}
+                            onChange={(e) => setEmpresa(e.target.value)}
                             name="empresa"
                             className="registro-input"
                             required
@@ -165,6 +165,8 @@ const RegistroTrabajador = () => {
                         <input
                             type="text"
                             id="contacto"
+                            value={contacto}
+                            onChange={(e) => setContacto(e.target.value) }
                             name="contacto"
                             className="registro-input"
                             required
