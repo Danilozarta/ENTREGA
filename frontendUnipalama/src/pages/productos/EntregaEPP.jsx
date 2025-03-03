@@ -8,6 +8,7 @@ const EntregaEPP = () => {
     const [trabajador, setTrabajador] = useState(null);
     const [fechaEntrega, setFechaEntrega] = useState('');
     const [eppEntregado, setEppEntregado] = useState('');
+    const [referencia_tipo, setReferencia_tipo] = useState('');
     const [unidadesEntregadas, setUnidadesEntregadas] = useState('');
     const [nombreEntrega, setNombreEntrega] = useState('');
     const [tareaLabor, setTareaLabor] = useState('');
@@ -58,6 +59,7 @@ const EntregaEPP = () => {
             fecha_entrega: fechaHoraActual,  // Usar fecha y hora actual
             epp_entregado: eppEntregado,
             unidades_entregadas: Number(unidadesEntregadas), // Convertir a número
+            referencia_tipo: referencia_tipo,
             nombre_hs_entrega: nombreEntrega,
             tarea_labor: tareaLabor,
         };
@@ -168,6 +170,17 @@ const EntregaEPP = () => {
                             className="epp-input"
                             value={eppEntregado}
                             onChange={(e) => setEppEntregado(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="epp-form-group">
+                        <label htmlFor="epp-elemento">referencia_tipo:</label>
+                        <input
+                            type="text"
+                            id="epp-elemento"
+                            className="epp-input"
+                            value={referencia_tipo}
+                            onChange={(e) => setReferencia_tipo(e.target.value)}
                             required
                         />
                     </div>

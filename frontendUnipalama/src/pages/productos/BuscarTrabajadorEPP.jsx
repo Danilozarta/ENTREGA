@@ -202,8 +202,12 @@ const BuscarTrabajadorEPP = () => {
             "Nombre",
             "Apellido",
             "Cédula",
+            "centro_de_operacion",
+            "cargo",
+            "contacto",
             "Fecha de Entrega",
             "EPP Entregado",
+            "Empresa",
             "Referencia/Tipo",
             "Nombre Quien Entrega",
             "Tarea/Labor",
@@ -218,6 +222,10 @@ const BuscarTrabajadorEPP = () => {
                 trabajador.nombre,
                 trabajador.apellido,
                 trabajador.cedula,
+                trabajador.centro_de_operacion,
+                trabajador.cargo,
+                trabajador.empresa,
+                trabajador.contacto,
                 fechaFormateada,
                 entrega.epp_entregado,
                 entrega.referencia_tipo,
@@ -280,26 +288,34 @@ const BuscarTrabajadorEPP = () => {
 
                 {/* Información del trabajador */}
                 {trabajador && (
-                    <div id="epp-datos-trabajador" className="epp-datos">
-                        <div className="epp-dato">
-                            <strong>Nombre:</strong> <span id="epp-nombre">{trabajador.nombre}</span>
-                        </div>
-                        <div className="epp-dato">
+                    <table id="epp-datos-trabajador" className="epp-datos epp-table epp-worker-info">
+                        <tr className="epp-dato">
+                        <td className="epp-td"> <strong>Nombre del trabajador:</strong> <span className="epp-input" id="epp-nombre">{trabajador.nombre } {trabajador.apellido}</span></td>
+                        </tr>
+                        {/* <div className="epp-dato">
                             <strong>Apellido:</strong>{" "}
                             <span id="epp-apellido">{trabajador.apellido}</span>
-                        </div>
+                        </div> */}
                         <div className="epp-dato">
                             <strong>Cédula:</strong>{" "}
                             <span id="epp-cedula-trabajador">{trabajador.cedula}</span>
                         </div>
                         <div className="epp-dato">
-                            <strong>Área:</strong> <span id="epp-area">{trabajador.area}</span>
+                            <strong>Centro de operacion:</strong> <span id="epp-area">{trabajador.centro_de_operacion}</span>
                         </div>
                         <div className="epp-dato">
-                            <strong>Labor:</strong>{" "}
-                            <span id="epp-labor-trabajador">{trabajador.labor}</span>
+                            <strong>Cargo:</strong>{" "}
+                            <span id="epp-labor-trabajador">{trabajador.cargo}</span>
                         </div>
-                    </div>
+                        <div className="epp-dato">
+                            <strong>Empresa:</strong>{" "}
+                            <span id="epp-labor-trabajador">{trabajador.empresa}</span>
+                        </div>
+                        <div className="epp-dato">
+                            <strong>Contacto:</strong>{" "}
+                            <span id="epp-labor-trabajador">{trabajador.contacto}</span>
+                        </div>
+                    </table>
                 )}
 
                 {/* Tabla de entregas */}
