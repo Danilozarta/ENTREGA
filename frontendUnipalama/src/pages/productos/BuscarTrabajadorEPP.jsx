@@ -389,24 +389,14 @@ const BuscarTrabajadorEPP = () => {
                                                 />
                                             </td>
                                             <td className="epp-td">
-                                                <div className="fingerprint-container">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        className="fingerprint-input"
-                                                        id={`fingerprint-${index}`}
+                                                {/* Mostrar la firma almacenada en la base de datos */}
+                                                {entrega.huella_digital && (
+                                                    <img
+                                                        src={entrega.huella_digital}
+                                                        alt="Firma del trabajador"
+                                                        style={{ width: "100px", height: "50px", border: "1px solid #000" }}
                                                     />
-                                                    <label
-                                                        htmlFor={`fingerprint-${index}`}
-                                                        className="fingerprint-label"
-                                                    >
-                                                        <img
-                                                            src="placeholder-fingerprint.png"
-                                                            alt="Subir huella"
-                                                            className="fingerprint-image"
-                                                        />
-                                                    </label>
-                                                </div>
+                                                )}
                                             </td>
                                         </tr>
                                     );

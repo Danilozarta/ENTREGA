@@ -6,7 +6,7 @@ const trabajadorSchema = new mongoose.Schema({
     apellido: { type: String, required: true },
     cedula: { type: Number, required: true, unique: true },
     cargo: { type: String },
-    area: { type: String },
+    centro_de_operacion: { type: String },
     empresa: { type: String },
     contacto: { type: String },
 });

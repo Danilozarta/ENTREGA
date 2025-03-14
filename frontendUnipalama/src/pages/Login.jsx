@@ -97,6 +97,9 @@ const Login = () => {
                         <button type="submit" className="boton-entrar-epp">
                             Entrar
                         </button>
+                        <button type="submit" className="boton-entrar-epp">
+                            registro
+                        </button>
                     </form>
                     <p id="errorMessage-epp" className="error-message-epp" style={{ display: msg ? 'block' : 'none' }}>
                         {msg}

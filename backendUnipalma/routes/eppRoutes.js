@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Ruta para registrar un trabajador
 router.post('/registrar-trabajador', async (req, res) => {
-    const { nombre, apellido, cedula, cargo, area, empresa, contacto } = req.body;
+    const { nombre, apellido, cedula, cargo, centro_de_operacion, empresa, contacto } = req.body;
     
     try {
          // Verifica que los campos obligatorios no estén vacíos
@@ -19,7 +19,7 @@ router.post('/registrar-trabajador', async (req, res) => {
             apellido,
             cedula,
             cargo,
-            area,
+            centro_de_operacion,
             empresa,
             contacto,
         });
