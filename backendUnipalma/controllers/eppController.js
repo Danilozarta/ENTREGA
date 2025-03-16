@@ -2,7 +2,7 @@ import EntregaEPP from '../models/EntregaEPP.js'; // Importar el modelo
 import { parse } from 'date-fns'; // Importar la función parse de date-fns
 
 const registrarEntregaEPP = async (req, res) => {
-    const { trabajador, fecha_entrega, epp_entregado, referencia_tipo, nombre_entrega, tarea_labor, huella_digital } = req.body;
+    const { trabajador, fecha_entrega, epp_entregado, referencia_tipo, nombre_entrega, tarea_labor, firma } = req.body;
     console.log("Datos recibidos:", req.body); // Depuración
 
     try {
@@ -22,7 +22,7 @@ const registrarEntregaEPP = async (req, res) => {
             referencia_tipo,
             nombre_entrega,
             tarea_labor,
-            huella_digital,
+            firma,
         });
 
         await entrega.save();

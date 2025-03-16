@@ -10,7 +10,7 @@ const entregaEPPSchema = new mongoose.Schema({
     unidades_entregadas: { type: Number, required: true }, // Añadido este campo
     nombre_hs_entrega: { type: String },
     tarea_labor: { type: String },
-    huella_digital: { type: String }, // Puede ser una ruta de archivo o un campo BLOB
+    firma: { type: String }, // Puede ser una ruta de archivo o un campo BLOB
 });
 
 export default mongoose.model('EntregaEPP', entregaEPPSchema);

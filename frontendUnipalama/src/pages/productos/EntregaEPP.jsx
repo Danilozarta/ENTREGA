@@ -1,8 +1,9 @@
-// frontend/src/page/productosEntregaEPP.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import FirmaDigital from '../../components/FirmaDigital';
+
+
 
 const EntregaEPP = () => {
     const [cedula, setCedula] = useState('');
@@ -15,10 +16,13 @@ const EntregaEPP = () => {
     const [tareaLabor, setTareaLabor] = useState('');
     const [firma, setFirma] = useState('');
 
-    useEffect(() => {
-        const nombreUsuario = localStorage.getItem('nombreUsuario');
+     // Recuperar el nombre del usuario al cargar el componente
+     useEffect(() => {
+        const nombreUsuario = localStorage.getItem('nombreUsuario'); // Recuperar nombre del usuario
+        console.log('Nombre del usuario recuperado:', nombreUsuario); // Verificar en consola
+
         if (nombreUsuario) {
-            setNombreEntrega(nombreUsuario);
+            setNombreEntrega(nombreUsuario); // Asignar el nombre al estado
         } else {
             console.error('No se encontró el nombre del usuario en la sesión.');
         }
@@ -29,7 +33,7 @@ const EntregaEPP = () => {
             const response = await fetch(`http://localhost:4000/api/epp/buscar-trabajador/${cedula}`);
             const data = await response.json();
             if (data.success) {
-                setTrabajador(data.trabajador);
+                setTrabajador(data.trabajador); // Asignar el trabajador al estado
             } else {
                 Swal.fire('Error', 'Trabajador no encontrado', 'error');
             }
@@ -42,23 +46,32 @@ const EntregaEPP = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validar que se haya buscado un trabajador
         if (!trabajador) {
             Swal.fire('Error', 'Debes buscar un trabajador primero', 'error');
             return;
         }
 
-        const fechaHoraActual = new Date().toISOString();
+        // Obtener la fecha y hora actual en formato ISO
+        const fechaHoraActual = new Date().toISOString(); // Formato: "2025-02-24T14:30:00.000Z"
+         // Obtener la fecha y hora actual en formato personalizado
+        //const fechaHoraActual = format(new Date(), 'dd/MM/yyyy HH:mm:ss'); // Formato: "24/02/2025 14:30:00"
+
+        // Crear el objeto de entrega con datos válidos
+        
 
         const entrega = {
             trabajador_id: trabajador._id,
-            fecha_entrega: fechaHoraActual,
+            fecha_entrega: fechaHoraActual, // Usar fecha y hora actual
             epp_entregado: eppEntregado,
-            unidades_entregadas: Number(unidadesEntregadas),
+            unidades_entregadas: Number(unidadesEntregadas), // Convertir a número
             referencia_tipo: referencia_tipo,
             nombre_hs_entrega: nombreEntrega,
             tarea_labor: tareaLabor,
-            firma: firma, // Aquí se incluye la firma
+            firma: firma, // envia el buffer
         };
+
+        console.log('Datos enviados:', JSON.stringify(entrega, null, 2)); // Verificar en consola
 
         try {
             const response = await fetch('http://localhost:4000/api/epp/registrar-entrega-epp', {
@@ -82,8 +95,19 @@ const EntregaEPP = () => {
         }
     };
 
+    const handleLimpiarFirma = () => {
+        // Lógica para limpiar la firma
+        console.log("Firma limpiada");
+    };
+
+    const handleCancelar = () => {
+        // Lógica para cancelar
+        console.log("Operación cancelada");
+    };
+
     return (
         <div className="body-epp">
+            {/* Menú de navegación */}
             <nav className="nav-registro">
                 <div className="hamburger-registro" id="hamburger-registro">
                     <div className="line line1"></div>
@@ -99,6 +123,7 @@ const EntregaEPP = () => {
                 </ul>
             </nav>
 
+            {/* Contenedor principal */}
             <div className="epp-container">
                 <h1 className="epp-title">Entrega de Elementos</h1>
 
@@ -120,6 +145,7 @@ const EntregaEPP = () => {
                     </button>
                 </div>
 
+                {/* Datos del trabajador */}
                 {trabajador && (
                     <div id="epp-datos-trabajador" className="epp-datos">
                         <div className="epp-dato">
@@ -131,6 +157,7 @@ const EntregaEPP = () => {
                         <div className="epp-dato">
                             <strong>Cédula:</strong> <span id="epp-cedula-trabajador">{trabajador.cedula}</span>
                         </div>
+                        {/* pendiente revisar los 2 campos siguientes */}
                         <div className="epp-dato">
                             <strong>Área:</strong> <span id="epp-area">{trabajador.area}</span>
                         </div>
@@ -140,6 +167,7 @@ const EntregaEPP = () => {
                     </div>
                 )}
 
+                {/* Formulario de entrega */}
                 <form id="epp-formulario" className="epp-form" onSubmit={handleSubmit}>
                     <div className="epp-form-group">
                         <label htmlFor="epp-elemento">Elemento Entregado:</label>
@@ -188,12 +216,14 @@ const EntregaEPP = () => {
                     <div className="epp-form-group">
                         <label htmlFor="epp-firma">Firma Digital:</label>
                         <FirmaDigital onFirmaGuardada={setFirma} />
+                        
                     </div>
                     <div className="epp-buttons">
                         <button
                             type="button"
                             id="epp-cancelar"
                             className="epp-button epp-button-cancel"
+                            onClick={handleCancelar}
                         >
                             Cancelar
                         </button>

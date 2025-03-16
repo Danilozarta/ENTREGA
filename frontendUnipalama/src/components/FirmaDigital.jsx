@@ -70,25 +70,34 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
             onFirmaGuardada(dataURL);
         };
 
-        // Event listeners
-        document.getElementById('connectBtn').addEventListener('click', connectWacom);
-        document.getElementById('clearBtn').addEventListener('click', limpiarFirma);
-        document.getElementById('saveButton').addEventListener('click', guardarFirma);
+        // Obtener referencias a los botones
+        const connectBtn = document.getElementById('connectBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const saveButton = document.getElementById('saveButton');
+
+        // Agregar event listeners solo si los botones existen
+        if (connectBtn && clearBtn && saveButton) {
+            connectBtn.addEventListener('click', connectWacom);
+            clearBtn.addEventListener('click', limpiarFirma);
+            saveButton.addEventListener('click', guardarFirma);
+        }
 
         // Limpiar event listeners al desmontar el componente
         return () => {
-            document.getElementById('connectBtn').removeEventListener('click', connectWacom);
-            document.getElementById('clearBtn').removeEventListener('click', limpiarFirma);
-            document.getElementById('saveButton').removeEventListener('click', guardarFirma);
+            if (connectBtn && clearBtn && saveButton) {
+                connectBtn.removeEventListener('click', connectWacom);
+                clearBtn.removeEventListener('click', limpiarFirma);
+                saveButton.removeEventListener('click', guardarFirma);
+            }
         };
     }, [onFirmaGuardada]);
 
     return (
-        <div>
-            <canvas ref={canvasRef} id="signatureCanvas" width="500" height="200"></canvas>
-            <button id="connectBtn">Conectar</button>
-            <button id="clearBtn">Limpiar Firma</button>
-            <button id="saveButton">Guardar Firma</button>
+        <div className='epp-form-group'>
+            <canvas ref={canvasRef} id="epp-firma" width="500" height="200"></canvas>
+            <button id="connectBtn" className='epp-button connet'>Conectar y firmar</button>
+            <button id="clearBtn"  className='epp-button clear' >Limpiar Firma</button>
+            <button id="saveButton"  className='epp-button save'>Guardar Firma</button>
         </div>
     );
 };

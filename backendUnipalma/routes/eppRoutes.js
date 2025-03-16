@@ -59,7 +59,7 @@ router.get('/buscar-trabajador/:cedula', async (req, res) => {
 
 // Ruta para registrar una entrega de EPP
 router.post('/registrar-entrega-epp', async (req, res) => {
-    const { trabajador_id, fecha_entrega, epp_entregado, referencia_tipo, unidades_entregadas,nombre_hs_entrega, tarea_labor, huella_digital } = req.body;
+    const { trabajador_id, fecha_entrega, epp_entregado, referencia_tipo, unidades_entregadas,nombre_hs_entrega, tarea_labor, firma } = req.body;
     console.log('Datos recibidos:', req.body); // Agrega esto para depuración
 
     try {
@@ -76,7 +76,7 @@ router.post('/registrar-entrega-epp', async (req, res) => {
             unidades_entregadas,
             nombre_hs_entrega,
             tarea_labor,
-            huella_digital,
+            firma,
         });
 
         await nuevaEntrega.save();
