@@ -215,7 +215,8 @@ const EntregaEPP = () => {
                     </div>
                     <div className="epp-form-group">
                         <label htmlFor="epp-firma">Firma Digital:</label>
-                        <FirmaDigital onFirmaGuardada={setFirma} />
+                        <FirmaDigital onFirmaGuardada={setFirma}  required/>
+
                         
                     </div>
                     <div className="epp-buttons">

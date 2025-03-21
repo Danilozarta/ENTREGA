@@ -35,14 +35,14 @@ const ListaProductos = () => {
             </div>
 
             {/* Barra de búsqueda */}
-            <div className="search-container-unipalma">
+            {/* <div className="search-container-unipalma">
                 <input
                     type="number"
                     className="search-bar-unipalma"
                     placeholder="Ingrese la cédula..."
                 />
                 <button className="boton-buscar-unipalma">Buscar</button>
-            </div>
+            </div> */}
 
             {/* Bloques de acciones */}
             <div className="actions-container-unipalma">

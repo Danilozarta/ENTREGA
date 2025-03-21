@@ -44,39 +44,7 @@ const BuscarTrabajadorEPP = () => {
         console.log("Datos de las entregas:", entregas);
     };
 
-    // Función para descargar la tabla en PDF
-
-    // const handleDescargarPDF = () => {
-    //     if (!trabajador || entregas.length === 0) {
-    //         Swal.fire("Error", "No hay datos para descargar", "error");
-    //         return;
-    //     }
-
-    //     // Selecciona el contenedor que contiene los datos del trabajador y la tabla de entregas
-    //     const input = document.querySelector(".epp-container");
-
-    //     if (!input) {
-    //         Swal.fire("Error", "No se encontró el contenido para generar el PDF", "error");
-    //         return;
-    //     }
-
-    //     // Usa html2canvas para capturar el contenido como una imagen
-    //     html2canvas(input).then((canvas) => {
-    //         const imgData = canvas.toDataURL("image/png");
-    //         const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
-
-    //         // Tamaño de la imagen en el PDF
-    //         const imgWidth = 210; // Ancho de A4 en mm
-    //         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    //         // Agrega la imagen al PDF
-    //         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    //         // Descarga el PDF
-    //         pdf.save(`entregas_epp_${trabajador.cedula}.pdf`);
-    //     });
-    // };
-    
+    // Funcion para descargar la tabla PDF
     const handleDescargarPDF = () => {
         if (!trabajador || entregas.length === 0) {
             Swal.fire("Error", "No hay datos para descargar", "error");
@@ -339,69 +307,35 @@ const BuscarTrabajadorEPP = () => {
                                     <th className="epp-th">HUELLA DIGITAL</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <ul className="epp-lista-entregas">
                                 {entregas.map((entrega, index) => {
                                     // Validar que la fecha sea válida
                                     const fechaValida = new Date(entrega.fecha_entrega);
                                     const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
 
                                     return (
-                                        <tr key={entrega._id}>
-                                            <td className="epp-td">{index + 1}</td>
-                                            <td className="epp-td">
-                                                <input
-                                                    type="text"
-                                                    value={fechaFormateada} // Usar la fecha validada
-                                                    className="epp-input"
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="epp-td">
-                                                <input
-                                                    type="text"
-                                                    value={entrega.epp_entregado}
-                                                    className="epp-input"
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="epp-td">
-                                                <input
-                                                    type="text"
-                                                    value={entrega.referencia_tipo}
-                                                    className="epp-input"
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="epp-td">
-                                                <input
-                                                    type="text"
-                                                    value={entrega.nombre_hs_entrega}
-                                                    className="epp-input"
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="epp-td">
-                                                <input
-                                                    type="text"
-                                                    value={entrega.tarea_labor}
-                                                    className="epp-input"
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="epp-td">
-                                                {/* Mostrar la firma almacenada en la base de datos */}
-                                                {entrega.huella_digital && (
-                                                    <img
-                                                        src={entrega.huella_digital}
+                                        <li key={entrega._id} className="epp-item-entrega">
+                                            <div className="epp-item-header">
+                                                <strong>Entrega #{index + 1}</strong>
+                                            </div>
+                                            <div className="epp-item-details">
+                                                <p><strong>Fecha:</strong> {fechaFormateada}</p>
+                                                <p><strong>EPP Entregado:</strong> {entrega.epp_entregado}</p>
+                                                <p><strong>Referencia/Tipo:</strong> {entrega.referencia_tipo}</p>
+                                                <p><strong>Nombre Quien Entrega:</strong> {entrega.nombre_hs_entrega}</p>
+                                                <p><strong>Tarea/Labor:</strong> {entrega.tarea_labor}</p>
+                                                <p><strong>Firma:</strong> 
+                                                <img
+                                                        src={entrega.firma}
                                                         alt="Firma del trabajador"
-                                                        style={{ width: "100px", height: "50px", border: "1px solid #000" }}
+                                                        style={{ width: "200px", height: "150px", border: "1px solid #000" }}
                                                     />
-                                                )}
-                                            </td>
-                                        </tr>
+                                                </p>
+                                            </div>
+                                        </li>
                                     );
                                 })}
-                            </tbody>
+                            </ul>
                         </table>
                     </div>
                 )}
