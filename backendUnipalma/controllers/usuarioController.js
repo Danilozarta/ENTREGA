@@ -11,11 +11,10 @@ const prueba = (req, res)=>{
 
 const registrar = async (req, res)=>{
 
-    const { nombre, email, password, telefono, direccion, web } = req.body;
+    const { nombre, email, password, telefono, direccion, web, rol } = req.body;
 
     // Validar usuario duplicado
-    // findOne busca por los diferentes atributos de la coleccion
-    const existeUsuario = await Usuario.findOne({nombre});
+    const existeUsuario = await Usuario.findOne({email});
 
     if(existeUsuario){
         const error = new Error("Usuario ya registrado");
@@ -24,7 +23,17 @@ const registrar = async (req, res)=>{
 
     try {
 
-        const usuario = new Usuario(req.body);
+        // Crear usuario con rol por defecto 'hs' si no se especifica
+        const usuario = new Usuario({
+            nombre,
+            email,
+            password,
+            telefono,
+            direccion,
+            web,
+            rol: rol || 'hs' // Rol por defecto
+        });
+
         const usuarioGuardado = await  usuario.save();
 
         // Enviar el email
@@ -34,41 +43,25 @@ const registrar = async (req, res)=>{
         //     token: usuarioGuardado.token
         // });
         
-        res.json(usuarioGuardado);
+       // Devolver respuesta sin password y con rol
+        res.json({
+            _id: usuarioGuardado._id,
+            nombre: usuarioGuardado.nombre,
+            email: usuarioGuardado.email,
+            rol: usuarioGuardado.rol,
+            telefono: usuarioGuardado.telefono,
+            direccion: usuarioGuardado.direccion,
+            web: usuarioGuardado.web
+        });
         
     } catch (error) {
         console.error(error.message);
+        return res.status(500).json({ msg: "Error en el servidor" });
     };
-    
 };
 
-// const confirmar = async (req, res)=>{
-//     // req.params para leer datos de la URL, en este caso token por que asi lo definimos en la ruta
-//     const { token } = req.params;
-//     // console.log(req.params);
-//     const usuarioConfirmar = await Usuario.findOne({token});
-//     // console.log(usuarioConfirmar);
-//     // console.log(token);
-//     if(!usuarioConfirmar){
-//         const error = new Error("Token no valido");
-//         // console.log("Token no valido");
-//         return res.status(404).json({msg: error.message});
-//     };
-//     try {
-//         usuarioConfirmar.token = null;
-//         usuarioConfirmar.confirmado = true;
-//         await usuarioConfirmar.save();
-//         res.json({
-//             msg: "Usuario confirmado correctamente"
-//         });
-//         // console.log("Usuario confirmado correctamente");
-//     } catch (error) {
-//         console.error(error.message);    
-//     }
-// };
 
 const auntenticar = async (req, res)=>{
-
     const { email, password } = req.body;
 
     const usuario = await Usuario.findOne({email});
@@ -78,23 +71,28 @@ const auntenticar = async (req, res)=>{
         return res.status(403).json({msg: error.message});
     };
 
-    // Comprobar si el usuario esta confirmado o no
-    // if(!usuario.confirmado){
-    //     const error = new Error("Tu cuenta no ha sido confirmada");
-    //     return res.status(403).json({msg: error.message});
-    // }
 
     // Autenticar el usuario
     // Revisar el password si es correcto
     if( await usuario.comprobarPassword(password)){
-
-        // Auntenticar JWT 
-        // https://jwt.io/
+        // Crear token JWT con el rol incluido
+        // Generar token con solo el ID (no enviar objeto completo)
+        const token = generarJWT(usuario._id.toString()); // Solo el ID como string
+        
+     
+        // Devolver datos relevantes del usuario
         //poner en esta linea los campos que quiero que me devuelva del hs para el formato de entrega EPP(nombre, numero, cedula..etc)
         res.json({ 
-            usuario,
-            token: generarJWT(usuario._id),
-            nombre: usuario.nombre, // Enviar el nombre del usuario
+            token,
+            usuario: {
+                _id: usuario._id,
+                nombre: usuario.nombre, // Enviar el nombre del usuario
+                email: usuario.email,
+                rol: usuario.rol,
+                telefono: usuario.telefono,
+                direccion: usuario.direccion,
+                web: usuario.web
+            },
             msg: "Usuario auntenticado"    
         });
 
@@ -149,9 +147,14 @@ const perfil = (req, res)=>{
     try{
 
         res.status(200).json({
-            usuario
+            _id: usuario._id,
+            nombre: usuario.nombre,
+            email: usuario.email,
+            rol: usuario.rol,
+            telefono: usuario.telefono,
+            direccion: usuario.direccion,
+            web: usuario.web
         });
-
     } catch (error) {
         return res.status(404).json({
             status: 'error',
@@ -162,11 +165,18 @@ const perfil = (req, res)=>{
 
 const usuarioRegistrados = async (req, res) =>{
     
-    const usuarios = await Usuario.find();
-
-    res.json(usuarios);
-
-    // console.log(usuarios);
+    try {
+        // Solo muestra campos necesarios, excluyendo password y otros sensibles
+        const usuarios = await Usuario.find()
+            .select('-password -token -__v -createdAt -updatedAt');
+        
+        res.json(usuarios);
+    } catch (error) {
+        return res.status(500).json({
+            status: 'error',
+            error: error.message
+        });
+    }
 };
 
 const nuevoPassword = async (req, res) =>{

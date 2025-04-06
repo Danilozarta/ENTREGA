@@ -4,112 +4,153 @@ import useAuth from '../hooks/useAuth';
 import Alerta from '../components/Alerta';
 import clienteAxios from '../config/axios';
 
-import imgLogin from '../assets/Unipalma-Vertical-Slogan-01.png'; // Cambia esta ruta por la de tu logo
-import fondoLogin from '../assets/neodevs.png'; // Cambia esta ruta por la de tu imagen de fondo
+import imgLogin from '../assets/Unipalma-Vertical-Slogan-01.png';
+import fondoLogin from '../assets/neodevs.png';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [alerta, setAlerta] = useState({});
+    const [cargando, setCargando] = useState(false);
 
-    const { auth, setAuth } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setCargando(true);
+    
         if ([email, password].includes('')) {
             setAlerta({ msg: "Todos los campos son obligatorios", error: true });
+            setCargando(false);
             return;
         }
-
+    
         try {
-            const { data } = await clienteAxios.post('usuarios/login', {
-                email,
-                password,
-            });
-
-            // Guardar el token y el nombre del usuario en localStorage
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('nombreUsuario', data.nombre); // Guardar el nombre del usuario
-
-            // Verificar que el nombre no sea undefined
-            console.log('Nombre del usuario recibido:', data.nombre);
-
-            // Actualizar el estado de autenticación
-            setAuth({
-                token: data.token,
-                nombre: data.nombre, // Asegúrate de que el backend envíe el nombre
-            });
-
-            // Redirigir al usuario
-            navigate('/homeHs');
+            const result = await login(email, password); // Usa la función login del AuthProvider
+        
+            if (result.ok) {
+                // Redirige según el rol usando el estado de auth
+                if (result.rol === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/homeHs');
+                }
+            } else {
+                setAlerta({
+                    msg: result.msg || 'Error al iniciar sesión',
+                    error: true
+                });
+            }
         } catch (error) {
             setAlerta({
-                msg: error.response.data.msg,
-                error: true,
+                msg: error.response?.data?.msg || 'Error al iniciar sesión',
+                error: true
             });
+            setCargando(false);
         }
     };
+
     const { msg } = alerta;
 
     return (
-        <div>
+        <div className="min-h-screen flex flex-col">
             {/* Header */}
-            <header className="header-epp">
-                <img src={imgLogin} alt="Logo Unipalma" className="logo-epp" />
+            <header className="header-epp bg-white shadow-md py-4">
+                <div className="container mx-auto flex justify-center">
+                    <img 
+                        src={imgLogin} 
+                        alt="Logo Unipalma" 
+                        className="logo-epp h-16" 
+                    />
+                </div>
             </header>
 
             {/* Main */}
-            <main className="main-container-epp">
-                <section className="login-container-epp">
-                    <h1 className="h1-login-epp">Iniciar sesión</h1>
-                    <form id="login-form-epp" className="form-epp" onSubmit={handleSubmit}>
-                        {msg && <Alerta alerta={alerta} />}
-                        <div className="input-group-epp">
-                            <label className="label-login-epp" htmlFor="email">
-                                Usuario
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                className="input-login-epp"
-                                placeholder="Ingresa tu usuario"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
+            <main className="main-container-epp flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="text-center">
+                        <h1 className="h1-login-epp text-3xl font-extrabold text-gray-900">
+                            Iniciar sesión
+                        </h1>
+                    </div>
+                    
+                    {msg && <Alerta alerta={alerta} />}
+                    
+                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                        <div className="rounded-md shadow-sm space-y-4">
+                            <div>
+                                <label htmlFor="email" className="sr-only">
+                                    Usuario
+                                </label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    required
+                                    className="input-login-epp appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="Correo electrónico"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="password" className="sr-only">
+                                    Contraseña
+                                </label>
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autoComplete="current-password"
+                                    required
+                                    className="input-login-epp appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="Contraseña"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
                         </div>
-                        <div className="input-group-epp">
-                            <label className="label-login-epp" htmlFor="password">
-                                Contraseña
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                className="input-login-epp"
-                                placeholder="Ingresa tu contraseña"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm">
+                                <Link 
+                                    to="/olvide-password" 
+                                    className="font-medium text-indigo-600 hover:text-indigo-500"
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
+                            </div>
                         </div>
-                        <button type="submit" className="boton-entrar-epp">
-                            Entrar
-                        </button>
-                        <button type="submit" className="boton-entrar-epp">
-                            registro
-                        </button>
+
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={cargando}
+                                className={`boton-entrar-epp group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${cargando ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                            </button>
+                        </div>
                     </form>
-                    <p id="errorMessage-epp" className="error-message-epp" style={{ display: msg ? 'block' : 'none' }}>
-                        {msg}
-                    </p>
-                </section>
+
+                    <div className="text-center">
+                        <Link 
+                            to="/registro" 
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            ¿No tienes cuenta? Regístrate aquí
+                        </Link>
+                    </div>
+                </div>
             </main>
 
             {/* Footer */}
-            <footer className="footer-epp">
-                <p>&copy; 2025 Unipalma. Todos los derechos reservados.</p>
+            <footer className="footer-epp bg-white py-4">
+                <div className="container mx-auto text-center text-gray-500 text-sm">
+                    <p>&copy; {new Date().getFullYear()} Unipalma. Todos los derechos reservados.</p>
+                </div>
             </footer>
         </div>
     );

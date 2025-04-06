@@ -46,8 +46,9 @@ const usuarioShema = mongoose.Schema({
     },
     rol: {
         type: String,
-        default: null,
-        trim: true,
+        enum: ['admin', 'hs'], // Roles permitidos
+        default: 'hs', // Valor por defecto
+        required: true
     }
 });
 // Antes de guardar el usuario Hashear el password
