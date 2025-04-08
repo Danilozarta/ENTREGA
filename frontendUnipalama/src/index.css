@@ -855,19 +855,31 @@
   }
   
   .registro-form .registro-input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #bdc3c7;
-      border-radius: 8px;
-      font-size: 14px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-  }
-  
-  .registro-form .registro-input:focus {
-      border-color: #1abc9c;
-      outline: none;
-  }
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+/* Oculta flechas en Chrome, Safari, Edge, Opera */
+.registro-form input[type="number"]::-webkit-outer-spin-button,
+.registro-form input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Oculta flechas en Firefox */
+.registro-form input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.registro-form .registro-input:focus {
+    border-color: #1abc9c;
+    outline: none;
+}
   
   .registro-form .registro-button {
       width: 100%;
