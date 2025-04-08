@@ -19,6 +19,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setCargando(true);
+        setAlerta({}); // Limpiar alertas previa
     
         if ([email, password].includes('')) {
             setAlerta({ msg: "Todos los campos son obligatorios", error: true });
@@ -41,6 +42,7 @@ const Login = () => {
                     msg: result.msg || 'Error al iniciar sesión',
                     error: true
                 });
+                setCargando(false); // Restablece el etado cargando a falso
             }
         } catch (error) {
             setAlerta({
@@ -113,7 +115,7 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        {/* <div className="flex items-center justify-between">
                             <div className="text-sm">
                                 <Link 
                                     to="/olvide-password" 
@@ -122,7 +124,7 @@ const Login = () => {
                                     ¿Olvidaste tu contraseña?
                                 </Link>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div>
                             <button
@@ -135,14 +137,14 @@ const Login = () => {
                         </div>
                     </form>
 
-                    <div className="text-center">
+                    {/* <div className="text-center">
                         <Link 
                             to="/registro" 
                             className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
                             ¿No tienes cuenta? Regístrate aquí
                         </Link>
-                    </div>
+                    </div> */}
                 </div>
             </main>
 
