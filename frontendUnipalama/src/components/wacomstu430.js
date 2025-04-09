@@ -191,7 +191,13 @@ var wacomstu430 = function () {
   // Cancella lo schermo del tablet
   this.clearScreen = async function () {
     if (!this.checkConnected()) return;
-    await this.sendData(this.command.clearScreen, new Uint8Array([0]));
+    try {
+        await this.sendData(this.command.clearScreen, new Uint8Array([0]));
+        console.log("Pantalla de tableta limpiada");
+    } catch (error) {
+        console.error("Error al limpiar pantalla:", error);
+        throw error;
+    }
   }.bind(this);
 
   // (Opzionale) Invia un'immagine al dispositivo; non usata nella semplice app firma

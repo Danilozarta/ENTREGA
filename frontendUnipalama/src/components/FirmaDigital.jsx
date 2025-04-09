@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import wacomstu430 from './wacomstu430';
 
-const FirmaDigital = ({ onFirmaGuardada }) => {
+const FirmaDigital = forwardRef(({ onFirmaGuardada }, ref) => {
     const canvasRef = useRef(null);
     const [showModal, setShowModal] = useState(false);
     const [firmaGuardada, setFirmaGuardada] = useState(null);
@@ -9,6 +9,39 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
     const wacomRef = useRef(null);
     const isDrawingRef = useRef(false);
     const lastPosRef = useRef({ x: 0, y: 0 });
+
+    // Exponer métodos al componente padre
+    useImperativeHandle(ref, () => ({
+        limpiarFirmaCompleta: async () => {
+            await limpiarTodo();
+        },
+        getWacomInstance: () => wacomRef.current
+    }));
+
+    const limpiarTodo = async () => {
+        // Limpiar canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Limpiar tableta Wacom si está conectada
+        if (wacomRef.current?.checkConnected?.()) {
+            try {
+                await wacomRef.current.clearScreen();
+            } catch (e) {
+                console.error("Error al limpiar tableta:", e);
+                throw e;
+            }
+        }
+        
+        // Limpiar estados
+        setFirmaGuardada(null);
+        if (onFirmaGuardada) {
+            onFirmaGuardada(null);
+        }
+    };
 
     // Inicializar canvas
     const initCanvas = () => {
@@ -108,13 +141,22 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
     };
 
     const handleLimpiarFirma = async () => {
-        initCanvas();
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
         if (wacomRef.current?.checkConnected?.()) {
             try {
                 await wacomRef.current.clearScreen();
             } catch (e) {
                 console.warn("Error clearing tablet screen:", e);
             }
+        }
+        setFirmaGuardada(null);
+        if (onFirmaGuardada) {
+            onFirmaGuardada(null);
         }
     };
 
@@ -200,6 +242,6 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
             )}
         </div>
     );
-};
+});
 
 export default FirmaDigital;

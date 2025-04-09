@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import FirmaDigital from '../../components/FirmaDigital';
@@ -14,16 +14,15 @@ const EntregaEPP = () => {
     const [tareaLabor, setTareaLabor] = useState('');
     const [firma, setFirma] = useState('');
     const [showOpcionesEnvio, setShowOpcionesEnvio] = useState(false);
+    
+    // Referencia al componente FirmaDigital para acceder a sus métodos
+    const firmaDigitalRef = useRef(null);
 
     // Recuperar el nombre del usuario al cargar el componente
     useEffect(() => {
         const nombreUsuario = localStorage.getItem('nombreUsuario');
-        console.log('Nombre del usuario recuperado:', nombreUsuario);
-
         if (nombreUsuario) {
             setNombreEntrega(nombreUsuario);
-        } else {
-            console.error('No se encontró el nombre del usuario en la sesión.');
         }
     }, []);
 
@@ -50,11 +49,9 @@ const EntregaEPP = () => {
             return;
         }
 
-        const fechaHoraActual = new Date().toISOString();
-
         const entrega = {
             trabajador_id: trabajador._id,
-            fecha_entrega: fechaHoraActual,
+            fecha_entrega: new Date().toISOString(),
             epp_entregado: eppEntregado,
             unidades_entregadas: Number(unidadesEntregadas),
             referencia_tipo: referencia_tipo,
@@ -62,8 +59,6 @@ const EntregaEPP = () => {
             tarea_labor: tareaLabor,
             firma: firma,
         };
-
-        console.log('Datos enviados:', JSON.stringify(entrega, null, 2));
 
         try {
             const response = await fetch('http://localhost:4000/api/epp/registrar-entrega-epp', {
@@ -74,13 +69,10 @@ const EntregaEPP = () => {
                 body: JSON.stringify(entrega),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.message || 'Error al registrar la entrega de EPP');
+                throw new Error('Error al registrar la entrega de EPP');
             }
 
-            // Mostrar opciones después de envío exitoso
             setShowOpcionesEnvio(true);
         } catch (error) {
             console.error('Error al registrar la entrega de EPP:', error);
@@ -88,16 +80,31 @@ const EntregaEPP = () => {
         }
     };
 
-    const handleNuevaEntrega = () => {
-        // Limpiar todos los campos
-        setCedula('');
-        setTrabajador(null);
-        setEppEntregado('');
-        setReferencia_tipo('');
-        setUnidadesEntregadas('');
-        setTareaLabor('');
-        setFirma('');
-        setShowOpcionesEnvio(false);
+    const handleNuevaEntrega = async () => {
+        try {
+            // Limpiar la firma en el componente FirmaDigital
+            if (firmaDigitalRef.current) {
+                await firmaDigitalRef.current.limpiarFirmaCompleta();
+            }
+            
+            // Limpiar todos los campos del formulario
+            setCedula('');
+            setTrabajador(null);
+            setEppEntregado('');
+            setReferencia_tipo('');
+            setUnidadesEntregadas('');
+            setTareaLabor('');
+            setFirma('');
+            setShowOpcionesEnvio(false);
+            
+            // Limpiar también la tableta Wacom
+            if (firmaDigitalRef.current?.wacomRef?.current?.checkConnected()) {
+                await firmaDigitalRef.current.wacomRef.current.clearScreen();
+            }
+        } catch (error) {
+            console.error('Error al limpiar para nueva entrega:', error);
+            Swal.fire('Error', 'No se pudo limpiar la firma', 'error');
+        }
     };
 
     const handleVolverInicio = () => {
@@ -105,24 +112,16 @@ const EntregaEPP = () => {
     };
 
     const handleCancelar = () => {
-        navigate('/homeH');
+        navigate('/homeHs');
     };
 
     return (
         <div className="body-epp">
             {/* Menú de navegación */}
             <nav className="nav-registro">
-                <div className="hamburger-registro" id="hamburger-registro">
-                    <div className="line line1"></div>
-                    <div className="line line2"></div>
-                </div>
-                <ul id="menu" className="menu">
-                    <li>
-                        <Link to="/home" className="nav-link-registro">Inicio</Link>
-                    </li>
-                    <li>
-                        <Link to="/" className="nav-link-registro">Cerrar Sesión</Link>
-                    </li>
+                <ul className="menu">
+                    <li><Link to="/homeHs" className="nav-link-registro">Inicio</Link></li>
+                    <li><Link to="/" className="nav-link-registro">Cerrar Sesión</Link></li>
                 </ul>
             </nav>
 
@@ -133,49 +132,33 @@ const EntregaEPP = () => {
                 <div className="epp-search">
                     <input
                         type="text"
-                        id="epp-cedula"
                         className="epp-input"
                         placeholder="Ingrese la cédula"
                         value={cedula}
                         onChange={(e) => setCedula(e.target.value)}
                     />
-                    <button 
-                        id="epp-buscar" 
-                        className="epp-button"
-                        onClick={handleBuscarTrabajador}
-                    >
+                    <button className="epp-button" onClick={handleBuscarTrabajador}>
                         Buscar
                     </button>
                 </div>
 
                 {/* Datos del trabajador */}
                 {trabajador && (
-                    <div id="epp-datos-trabajador" className="epp-datos">
-                        <div className="epp-dato">
-                            <strong>Nombre:</strong> <span id="epp-nombre">{trabajador.nombre}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Apellido:</strong> <span id="epp-apellido">{trabajador.apellido}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Cédula:</strong> <span id="epp-cedula-trabajador">{trabajador.cedula}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Área:</strong> <span id="epp-area">{trabajador.area}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Labor:</strong> <span id="epp-labor-trabajador">{trabajador.labor}</span>
-                        </div>
+                    <div className="epp-datos">
+                        <div className="epp-dato"><strong>Nombre:</strong> {trabajador.nombre}</div>
+                        <div className="epp-dato"><strong>Apellido:</strong> {trabajador.apellido}</div>
+                        <div className="epp-dato"><strong>Cédula:</strong> {trabajador.cedula}</div>
+                        <div className="epp-dato"><strong>Área:</strong> {trabajador.area}</div>
+                        <div className="epp-dato"><strong>Labor:</strong> {trabajador.labor}</div>
                     </div>
                 )}
 
                 {/* Formulario de entrega */}
-                <form id="epp-formulario" className="epp-form" onSubmit={handleSubmit}>
+                <form className="epp-form" onSubmit={handleSubmit}>
                     <div className="epp-form-group">
-                        <label htmlFor="epp-elemento">Elemento Entregado:</label>
+                        <label>Elemento Entregado:</label>
                         <input
                             type="text"
-                            id="epp-elemento"
                             className="epp-input"
                             value={eppEntregado}
                             onChange={(e) => setEppEntregado(e.target.value)}
@@ -183,10 +166,9 @@ const EntregaEPP = () => {
                         />
                     </div>
                     <div className="epp-form-group">
-                        <label htmlFor="epp-elemento">Referencia/Tipo:</label>
+                        <label>Referencia/Tipo:</label>
                         <input
                             type="text"
-                            id="epp-elemento"
                             className="epp-input"
                             value={referencia_tipo}
                             onChange={(e) => setReferencia_tipo(e.target.value)}
@@ -194,10 +176,9 @@ const EntregaEPP = () => {
                         />
                     </div>
                     <div className="epp-form-group">
-                        <label htmlFor="epp-cantidad">Cantidad:</label>
+                        <label>Cantidad:</label>
                         <input
                             type="number"
-                            id="epp-cantidad"
                             className="epp-input"
                             value={unidadesEntregadas}
                             onChange={(e) => setUnidadesEntregadas(e.target.value)}
@@ -205,10 +186,9 @@ const EntregaEPP = () => {
                         />
                     </div>
                     <div className="epp-form-group">
-                        <label htmlFor="epp-labor">Labor:</label>
+                        <label>Labor:</label>
                         <input
                             type="text"
-                            id="epp-labor"
                             className="epp-input"
                             value={tareaLabor}
                             onChange={(e) => setTareaLabor(e.target.value)}
@@ -216,13 +196,16 @@ const EntregaEPP = () => {
                         />
                     </div>
                     <div className="epp-form-group">
-                        <label htmlFor="epp-firma">Firma Digital:</label>
-                        <FirmaDigital onFirmaGuardada={setFirma} required />
+                        <label>Firma Digital:</label>
+                        <FirmaDigital 
+                            ref={firmaDigitalRef}
+                            onFirmaGuardada={setFirma} 
+                            required 
+                        />
                     </div>
                     <div className="epp-buttons">
                         <button
                             type="button"
-                            id="epp-cancelar"
                             className="epp-button epp-button-cancel"
                             onClick={handleCancelar}
                         >
@@ -260,61 +243,6 @@ const EntregaEPP = () => {
                     </div>
                 )}
             </div>
-
-            {/* Estilos CSS */}
-            <style jsx>{`
-                .opciones-envio-modal-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: rgba(0,0,0,0.7);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                }
-
-                .opciones-envio-modal-content {
-                    background-color: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    text-align: center;
-                    max-width: 400px;
-                    width: 90%;
-                }
-
-                .opciones-envio-modal-content h3 {
-                    color: #4CAF50;
-                    margin-top: 0;
-                }
-
-                .opciones-envio-botones {
-                    display: flex;
-                    justify-content: center;
-                    gap: 15px;
-                    margin-top: 20px;
-                }
-
-                .opcion-button {
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-weight: bold;
-                }
-
-                .opcion-button.nueva-entrega {
-                    background-color: #2196F3;
-                    color: white;
-                }
-
-                .opcion-button.volver-inicio {
-                    background-color: #ff9800;
-                    color: white;
-                }
-            `}</style>
         </div>
     );
 };
