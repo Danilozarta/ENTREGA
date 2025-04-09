@@ -27,6 +27,7 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
         const connectWacom = async () => {
             if (await wacom.connect()) {
                 console.log("Conectado a la STU‑430");
+                await wacom.clearScreen(); // Limpia la pantalla al conectar
                 await wacom.clearScreen();
                 await wacom.setWritingMode(1);
                 await wacom.setWritingArea({ x1: 0, y1: 0, x2: 320, y2: 200 });
@@ -59,16 +60,24 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
             }
         });
 
-        // Limpiar el canvas
-        const limpiarFirma = () => {
+        // Limpiar el canvas y tableta 
+        const limpiarFirma = async () => {
             context.clearRect(0, 0, canvas.width, canvas.height);
+            if (wacom.checkConnected()) {
+                await wacom.clearScreen();
+            }
         };
+    
 
         // Guardar la firma
-        const guardarFirma = () => {
+        const guardarFirma = async () => {
             const dataURL = canvas.toDataURL('image/png');
             onFirmaGuardada(dataURL);
+            if (wacom.checkConnected()) {
+                await wacom.clearScreen(); // Opcional: limpiar tableta después de guardar
+            }
         };
+    
 
         // Obtener referencias a los botones
         const connectBtn = document.getElementById('connectBtn');
@@ -95,9 +104,9 @@ const FirmaDigital = ({ onFirmaGuardada }) => {
     return (
         <div className='epp-form-group'>
             <canvas ref={canvasRef} id="epp-firma" width="500" height="200"></canvas>
-            <button id="connectBtn" className='epp-button connet'>Conectar y firmar</button>
-            <button id="clearBtn"  className='epp-button clear' >Limpiar Firma</button>
-            <button id="saveButton"  className='epp-button save'>Guardar Firma</button>
+            <button type='button' id="connectBtn" className='epp-button connet'>Conectar y firmar</button>
+            <button type='button' id="clearBtn"  className='epp-button clear' >Limpiar Firma</button>
+            <button type='button' id="saveButton"  className='epp-button save'>Guardar Firma</button>
         </div>
     );
 };
