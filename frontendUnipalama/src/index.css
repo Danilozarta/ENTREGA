@@ -1048,6 +1048,133 @@
     display: flex;
     justify-content: space-between;
   }
+
+  .firma-loading, .firma-error {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.firma-loading {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.firma-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.epp-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.firma-container {
+  position: relative;
+  margin: 20px 0;
+}
+
+.firma-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.firma-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.firma-canvas {
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.firma-modal-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.firma-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.firma-imagen {
+  max-width: 500px;
+  max-height: 200px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.epp-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.epp-button.conectar {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.epp-button.limpiar {
+  background-color: #f44336;
+  color: white;
+}
+
+.epp-button.guardar {
+  background-color: #2196F3;
+  color: white;
+}
+
+.epp-button.eliminar {
+  background-color: #ff9800;
+  color: white;
+}
+
+.epp-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.firma-loading, .firma-error {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+.firma-loading {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.firma-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
   
   /* Responsive Design */
   @media (max-width: 600px) {
@@ -1203,88 +1330,219 @@
   
   
     
-  /* Estilo para el botón de descarga */
-  a.btn-descarga {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    max-width: 100%;
-    margin: 5px auto;
-    padding: 10px;
-    
-   
-    margin-left: 80%;
-      transform: translateX(-0%);
-   
+  /* pagina                        descargar                                historial */
+  
+/* Estilos generales */
+.body-epp {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Barra de navegación */
+.nav-registro {
+  background-color: #2c3e50;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.menu {
+  display: flex;
+  justify-content: flex-end;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link-registro {
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  margin-left: 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link-registro:hover {
+  background-color: #34495e;
+}
+
+/* Contenedor principal */
+.epp-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.epp-title {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+
+/* Búsqueda */
+.epp-search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.epp-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+.epp-input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.epp-button {
+  padding: 12px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.epp-button:hover {
+  background-color: #2980b9;
+}
+
+.epp-button.disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Información del trabajador */
+.epp-info-trabajador {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 30px;
+  border-left: 4px solid #3498db;
+}
+
+.epp-info-trabajador h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.epp-info-trabajador p {
+  margin: 8px 0;
+}
+
+/* Lista de entregas */
+.epp-entregas-section {
+  margin-top: 30px;
+}
+
+.epp-header-entregas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.epp-header-entregas h2 {
+  color: #2c3e50;
+  font-size: 22px;
+  margin: 0;
+}
+
+.epp-entregas-list {
+  margin-top: 20px;
+}
+
+.epp-entrega-card {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.epp-entrega-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.epp-entrega-content {
+  flex: 1;
+}
+
+.epp-entrega-content h3 {
+  margin-top: 0;
+  color: #3498db;
+  font-size: 18px;
+}
+
+.epp-entrega-content p {
+  margin: 6px 0;
+}
+
+.epp-entrega-firma {
+  margin-left: 20px;
+  text-align: center;
+}
+
+.epp-firma-img {
+  width: 180px;
+  height: 100px;
+  border: 1px solid #ddd;
+  object-fit: contain;
+  background-color: #f9f9f9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .epp-container {
+      padding: 15px;
   }
   
-  a.btn-descarga:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+  .epp-header-entregas {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
   }
   
-  a.btn-descarga:active {
-    background-color: #388e3c;
-  }
-  a.btn-Agregar {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    max-width: 100%;
-    margin: 5px auto;
-    padding: 10px;
-    
-   
-    margin-left: 66%;
-      transform: translateX(-0%);
-   
+  .epp-entrega-card {
+      flex-direction: column;
   }
   
-  a.btn-Agregar:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+  .epp-entrega-firma {
+      margin-left: 0;
+      margin-top: 15px;
   }
   
-  a.btn-Agregar:active {
-    background-color: #388e3c;
+  .epp-firma-img {
+      width: 100%;
+      height: auto;
+      max-height: 100px;
   }
-
-  .epp-list-entregas{
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
-  }
-
-  .epp-item-entrega{
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-
-  .epp-item-header{
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-
-  .epp-item-details p {
-    margin: 5px 0;
-    font-size: 14px;
-  }
+}
+  
+ 
   
   /* pagina                      de                                   administrador*/
   /* pagina                      de                                   administrador*/

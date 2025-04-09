@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import FirmaDigital from '../../components/FirmaDigital';
 
-
-
 const EntregaEPP = () => {
+    const navigate = useNavigate();
     const [cedula, setCedula] = useState('');
     const [trabajador, setTrabajador] = useState(null);
-    const [fechaEntrega, setFechaEntrega] = useState('');
     const [eppEntregado, setEppEntregado] = useState('');
     const [referencia_tipo, setReferencia_tipo] = useState('');
     const [unidadesEntregadas, setUnidadesEntregadas] = useState('');
     const [nombreEntrega, setNombreEntrega] = useState('');
     const [tareaLabor, setTareaLabor] = useState('');
     const [firma, setFirma] = useState('');
+    const [showOpcionesEnvio, setShowOpcionesEnvio] = useState(false);
 
-     // Recuperar el nombre del usuario al cargar el componente
-     useEffect(() => {
-        const nombreUsuario = localStorage.getItem('nombreUsuario'); // Recuperar nombre del usuario
-        console.log('Nombre del usuario recuperado:', nombreUsuario); // Verificar en consola
+    // Recuperar el nombre del usuario al cargar el componente
+    useEffect(() => {
+        const nombreUsuario = localStorage.getItem('nombreUsuario');
+        console.log('Nombre del usuario recuperado:', nombreUsuario);
 
         if (nombreUsuario) {
-            setNombreEntrega(nombreUsuario); // Asignar el nombre al estado
+            setNombreEntrega(nombreUsuario);
         } else {
             console.error('No se encontró el nombre del usuario en la sesión.');
         }
@@ -33,7 +32,7 @@ const EntregaEPP = () => {
             const response = await fetch(`http://localhost:4000/api/epp/buscar-trabajador/${cedula}`);
             const data = await response.json();
             if (data.success) {
-                setTrabajador(data.trabajador); // Asignar el trabajador al estado
+                setTrabajador(data.trabajador);
             } else {
                 Swal.fire('Error', 'Trabajador no encontrado', 'error');
             }
@@ -46,32 +45,25 @@ const EntregaEPP = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validar que se haya buscado un trabajador
         if (!trabajador) {
             Swal.fire('Error', 'Debes buscar un trabajador primero', 'error');
             return;
         }
 
-        // Obtener la fecha y hora actual en formato ISO
-        const fechaHoraActual = new Date().toISOString(); // Formato: "2025-02-24T14:30:00.000Z"
-         // Obtener la fecha y hora actual en formato personalizado
-        //const fechaHoraActual = format(new Date(), 'dd/MM/yyyy HH:mm:ss'); // Formato: "24/02/2025 14:30:00"
-
-        // Crear el objeto de entrega con datos válidos
-        
+        const fechaHoraActual = new Date().toISOString();
 
         const entrega = {
             trabajador_id: trabajador._id,
-            fecha_entrega: fechaHoraActual, // Usar fecha y hora actual
+            fecha_entrega: fechaHoraActual,
             epp_entregado: eppEntregado,
-            unidades_entregadas: Number(unidadesEntregadas), // Convertir a número
+            unidades_entregadas: Number(unidadesEntregadas),
             referencia_tipo: referencia_tipo,
             nombre_hs_entrega: nombreEntrega,
             tarea_labor: tareaLabor,
-            firma: firma, // envia el buffer
+            firma: firma,
         };
 
-        console.log('Datos enviados:', JSON.stringify(entrega, null, 2)); // Verificar en consola
+        console.log('Datos enviados:', JSON.stringify(entrega, null, 2));
 
         try {
             const response = await fetch('http://localhost:4000/api/epp/registrar-entrega-epp', {
@@ -88,21 +80,32 @@ const EntregaEPP = () => {
                 throw new Error(data.message || 'Error al registrar la entrega de EPP');
             }
 
-            Swal.fire('Éxito', 'Entrega de EPP registrada correctamente', 'success');
+            // Mostrar opciones después de envío exitoso
+            setShowOpcionesEnvio(true);
         } catch (error) {
             console.error('Error al registrar la entrega de EPP:', error);
             Swal.fire('Error', error.message || 'Hubo un problema al registrar la entrega de EPP', 'error');
         }
     };
 
-    const handleLimpiarFirma = () => {
-        // Lógica para limpiar la firma
-        console.log("Firma limpiada");
+    const handleNuevaEntrega = () => {
+        // Limpiar todos los campos
+        setCedula('');
+        setTrabajador(null);
+        setEppEntregado('');
+        setReferencia_tipo('');
+        setUnidadesEntregadas('');
+        setTareaLabor('');
+        setFirma('');
+        setShowOpcionesEnvio(false);
+    };
+
+    const handleVolverInicio = () => {
+        navigate('/homeHs');
     };
 
     const handleCancelar = () => {
-        // Lógica para cancelar
-        console.log("Operación cancelada");
+        navigate('/homeH');
     };
 
     return (
@@ -157,7 +160,6 @@ const EntregaEPP = () => {
                         <div className="epp-dato">
                             <strong>Cédula:</strong> <span id="epp-cedula-trabajador">{trabajador.cedula}</span>
                         </div>
-                        {/* pendiente revisar los 2 campos siguientes */}
                         <div className="epp-dato">
                             <strong>Área:</strong> <span id="epp-area">{trabajador.area}</span>
                         </div>
@@ -215,9 +217,7 @@ const EntregaEPP = () => {
                     </div>
                     <div className="epp-form-group">
                         <label htmlFor="epp-firma">Firma Digital:</label>
-                        <FirmaDigital onFirmaGuardada={setFirma}  required/>
-
-                        
+                        <FirmaDigital onFirmaGuardada={setFirma} required />
                     </div>
                     <div className="epp-buttons">
                         <button
@@ -233,7 +233,88 @@ const EntregaEPP = () => {
                         </button>
                     </div>
                 </form>
+
+                {/* Modal de opciones después de envío exitoso */}
+                {showOpcionesEnvio && (
+                    <div className="opciones-envio-modal-overlay">
+                        <div className="opciones-envio-modal-content">
+                            <h3>¡Entrega registrada con éxito!</h3>
+                            <p>¿Qué deseas hacer ahora?</p>
+                            <div className="opciones-envio-botones">
+                                <button 
+                                    type="button" 
+                                    onClick={handleNuevaEntrega}
+                                    className="opcion-button nueva-entrega"
+                                >
+                                    Nueva Entrega
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={handleVolverInicio}
+                                    className="opcion-button volver-inicio"
+                                >
+                                    Volver al Inicio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Estilos CSS */}
+            <style jsx>{`
+                .opciones-envio-modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0,0,0,0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+
+                .opciones-envio-modal-content {
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 8px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                }
+
+                .opciones-envio-modal-content h3 {
+                    color: #4CAF50;
+                    margin-top: 0;
+                }
+
+                .opciones-envio-botones {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-top: 20px;
+                }
+
+                .opcion-button {
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                }
+
+                .opcion-button.nueva-entrega {
+                    background-color: #2196F3;
+                    color: white;
+                }
+
+                .opcion-button.volver-inicio {
+                    background-color: #ff9800;
+                    color: white;
+                }
+            `}</style>
         </div>
     );
 };

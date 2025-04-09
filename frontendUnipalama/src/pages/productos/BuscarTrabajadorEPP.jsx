@@ -9,21 +9,18 @@ const BuscarTrabajadorEPP = () => {
     const [cedula, setCedula] = useState("");
     const [trabajador, setTrabajador] = useState(null);
     const [entregas, setEntregas] = useState([]);
+    const [generandoPDF, setGenerandoPDF] = useState(false);
 
-    // Función para buscar al trabajador y sus entregas
     const handleBuscarTrabajador = async () => {
         try {
-            // Buscar al trabajador por cédula
             const responseTrabajador = await fetch(
                 `http://localhost:4000/api/epp/buscar-trabajador/${cedula}`
             );
             const dataTrabajador = await responseTrabajador.json();
-            console.log("Datos del trabajador:", dataTrabajador); // Depuración
 
             if (dataTrabajador.success) {
                 setTrabajador(dataTrabajador.trabajador);
 
-                // Buscar las entregas relacionadas al trabajador
                 const responseEntregas = await fetch(
                     `http://localhost:4000/api/epp/entregas-por-trabajador/${dataTrabajador.trabajador._id}`
                 );
@@ -41,181 +38,135 @@ const BuscarTrabajadorEPP = () => {
             console.error("Error al buscar el trabajador:", error);
             Swal.fire("Error", "Hubo un problema al buscar el trabajador", "error");
         }
-        console.log("Datos de las entregas:", entregas);
     };
 
-    // Funcion para descargar la tabla PDF
-    const handleDescargarPDF = () => {
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleBuscarTrabajador();
+        }
+    };
+
+    const handleDescargarPDF = async () => {
         if (!trabajador || entregas.length === 0) {
             Swal.fire("Error", "No hay datos para descargar", "error");
             return;
         }
-    
-        // Ocultar la barra de búsqueda y otros elementos no deseados
-        const searchBar = document.querySelector(".epp-search");
-        const title = document.querySelector(".epp-title");
-        const buttons = document.querySelectorAll(".epp-button");
 
-        if (searchBar) searchBar.style.display = "none"; // Ocultar la barra de búsqueda
-        if (title) title.style.display = "none"; // Ocultar el título
-        buttons.forEach((button) => {
-            button.style.display = "none"; // Ocultar los botones
-    });
-    
-        // Crear un nuevo elemento para el encabezado personalizado
-        const header = document.createElement("div");
-        header.innerHTML = `
-            <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">COMPROBANTES DE ENTREGAS EPP UNIPALMA</h1>
-        `;
-        header.style.textAlign = "center";
-        header.style.marginBottom = "20px";
-    
-        // Insertar el encabezado antes de la tabla
-        const container = document.querySelector(".epp-container");
-        if (container) {
-            container.insertBefore(header, container.firstChild); // Agregar el encabezado al inicio
-        }
-    
-        // Capturar el contenido del contenedor
-        html2canvas(container).then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
-    
-            // Tamaño de la imagen en el PDF
-            const imgWidth = 210; // Ancho de A4 en mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-            // Agregar la imagen al PDF
-            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    
-            // Descargar el PDF
-            pdf.save(`comprobante_entregas_epp_${trabajador.cedula}.pdf`);
-    
-            // Restaurar los elementos ocultos después de la descarga
-            if (searchBar) searchBar.style.display = "block"; // Restaurar la barra de búsqueda
-            if (title) title.style.display = "block"; // Restaurar el título
-            buttons.forEach((button) => {
-                button.style.display = "block"; // Restaurar visibilidad de los botones
-            });
-    
-            // Eliminar el encabezado personalizado
-            if (header && container) {
-                container.removeChild(header);
+        setGenerandoPDF(true);
+        
+        try {
+            const pdf = new jsPDF("p", "mm", "a4");
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 15;
+            let yPosition = margin;
+            let currentPage = 1;
+
+            pdf.setFont("helvetica", "normal");
+            
+            const addHeader = () => {
+                pdf.setFontSize(16);
+                pdf.setTextColor(40);
+                pdf.text("COMPROBANTES DE ENTREGAS EPP UNIPALMA", pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 8;
+                
+                pdf.setFontSize(12);
+                pdf.text(`Trabajador: ${trabajador.nombre} ${trabajador.apellido}`, pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 6;
+                pdf.text(`Cédula: ${trabajador.cedula}`, pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 10;
+
+                pdf.text(`Centro de operación: ${trabajador.centro_de_operacion}`, margin, yPosition);
+                yPosition += 6;
+                pdf.text(`Cargo: ${trabajador.cargo}`, margin, yPosition);
+                yPosition += 6;
+                pdf.text(`Empresa: ${trabajador.empresa}`, margin, yPosition);
+                yPosition += 10;
+            };
+
+            addHeader();
+
+            for (let i = 0; i < entregas.length; i++) {
+                const entrega = entregas[i];
+                const fecha = new Date(entrega.fecha_entrega);
+                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy");
+
+                if (yPosition > pageHeight - 60) {
+                    pdf.addPage();
+                    currentPage++;
+                    yPosition = margin;
+                    addHeader();
+                }
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(0);
+                pdf.setFont("helvetica", "bold");
+                pdf.text(`Entrega #${i + 1} - ${fechaFormateada}`, margin, yPosition);
+                yPosition += 8;
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(`• EPP Entregado: ${entrega.epp_entregado}`, margin, yPosition);
+                yPosition += 6;
+                pdf.text(`• Referencia/Tipo: ${entrega.referencia_tipo}`, margin, yPosition);
+                yPosition += 6;
+                pdf.text(`• Responsable: ${entrega.nombre_hs_entrega}`, margin, yPosition);
+                yPosition += 6;
+                pdf.text(`• Tarea/Labor: ${entrega.tarea_labor}`, margin, yPosition);
+                yPosition += 10;
+
+                if (entrega.firma) {
+                    try {
+                        const firmaContainer = document.createElement("div");
+                        firmaContainer.innerHTML = `<img src="${entrega.firma}" style="width: 80px; height: 40px; background: white;"/>`;
+                        firmaContainer.style.position = "absolute";
+                        firmaContainer.style.left = "-9999px";
+                        document.body.appendChild(firmaContainer);
+
+                        const canvas = await html2canvas(firmaContainer.querySelector("img"), {
+                            scale: 2,
+                            useCORS: true,
+                            width: 80,
+                            height: 40,
+                            backgroundColor: null
+                        });
+
+                        document.body.removeChild(firmaContainer);
+
+                        const imgData = canvas.toDataURL("image/png");
+                        const imgWidth = 40;
+                        const imgHeight = 20;
+
+                        pdf.addImage(imgData, "PNG", pageWidth - margin - imgWidth, yPosition, imgWidth, imgHeight);
+                        pdf.text("Firma:", pageWidth - margin - imgWidth - 15, yPosition + 10);
+                        yPosition += imgHeight + 15;
+                    } catch (error) {
+                        console.error("Error al procesar firma:", error);
+                        pdf.text("Firma no disponible", pageWidth - margin - 40, yPosition + 10);
+                        yPosition += 20;
+                    }
+                } else {
+                    pdf.text("Sin firma", pageWidth - margin - 30, yPosition + 10);
+                    yPosition += 20;
+                }
+
+                pdf.setDrawColor(200);
+                pdf.setLineWidth(0.2);
+                pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
             }
-        });
 
-    // // Ocultar elementos no deseados temporalmente
-    // const searchBar = document.querySelector(".epp-search");
-    // const title = document.querySelector(".epp-title");
-    // const buttons = document.querySelectorAll(".epp-button");
+            pdf.save(`EPP_${trabajador.cedula}_${format(new Date(), 'yyyyMMdd')}.pdf`);
 
-    // if (searchBar) searchBar.style.display = "none"; // Ocultar la barra de búsqueda
-    // if (title) title.style.display = "none"; // Ocultar el título
-    // buttons.forEach((button) => {
-    //     button.style.display = "none"; // Ocultar los botones
-    // });
-
-    // // Crear un nuevo elemento para el encabezado personalizado
-    // const header = document.createElement("div");
-    // header.innerHTML = `
-    //     <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">COMPROBANTES DE ENTREGAS EPP UNIPALMA</h1>
-    // `;
-    // header.style.textAlign = "center";
-    // header.style.marginBottom = "20px";
-
-    // // Insertar el encabezado antes de la tabla
-    // const container = document.querySelector(".epp-container");
-    // if (container) {
-    //     container.insertBefore(header, container.firstChild); // Agregar el encabezado al inicio
-    // }
-
-    // // Capturar el contenido del contenedor
-    // html2canvas(container).then((canvas) => {
-    //     const imgData = canvas.toDataURL("image/png");
-    //     const pdf = new jsPDF("p", "mm", "a4"); // Orientación portrait, unidades en mm, tamaño A4
-
-    //     // Tamaño de la imagen en el PDF
-    //     const imgWidth = 210; // Ancho de A4 en mm
-    //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    //     // Agregar la imagen al PDF
-    //     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-
-    //     // Descargar el PDF
-    //     pdf.save(`comprobante_entregas_epp_${trabajador.cedula}.pdf`);
-
-    //     // Restaurar los elementos ocultos después de la descarga
-    //     if (searchBar) searchBar.style.display = "block"; // Restaurar la barra de búsqueda
-    //     if (title) title.style.display = "block"; // Restaurar el título
-    //     buttons.forEach((button) => {
-    //         button.style.display = "block"; // Restaurar visibilidad de los botones
-    //     });
-
-    //     // Eliminar el encabezado personalizado
-    //     if (header && container) {
-    //         container.removeChild(header);
-    //     }
-    // });
-};
-
-    // Funcion para descargar tabla en archivo CSV
-    const handleDescargarTabla = () => {
-        if (!trabajador || entregas.length === 0) {
-            Swal.fire("Error", "No hay datos para descargar", "error");
-            return;
+        } catch (error) {
+            console.error("Error al generar PDF:", error);
+            Swal.fire("Error", "No se pudo generar el PDF", "error");
+        } finally {
+            setGenerandoPDF(false);
         }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        const headers = [
-            "Nombre",
-            "Apellido",
-            "Cédula",
-            "centro_de_operacion",
-            "cargo",
-            "contacto",
-            "Fecha de Entrega",
-            "EPP Entregado",
-            "Empresa",
-            "Referencia/Tipo",
-            "Nombre Quien Entrega",
-            "Tarea/Labor",
-        ];
-        csvContent += headers.join(",") + "\n";
-
-        entregas.forEach((entrega) => {
-            const fechaValida = new Date(entrega.fecha_entrega);
-            const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
-
-            const row = [
-                trabajador.nombre,
-                trabajador.apellido,
-                trabajador.cedula,
-                trabajador.centro_de_operacion,
-                trabajador.cargo,
-                trabajador.empresa,
-                trabajador.contacto,
-                fechaFormateada,
-                entrega.epp_entregado,
-                entrega.referencia_tipo,
-                entrega.nombre_hs_entrega,
-                entrega.tarea_labor,
-            ];
-            csvContent += row.join(",") + "\n";
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `entregas_${trabajador.cedula}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
-
 
     return (
         <div className="body-epp">
-            {/* Menú de navegación */}
             <nav className="nav-registro">
                 <div className="hamburger-registro" id="hamburger-registro">
                     <div className="line line1"></div>
@@ -235,108 +186,71 @@ const BuscarTrabajadorEPP = () => {
                 </ul>
             </nav>
 
-            {/* Contenedor principal */}
             <div className="epp-container">
-                <h1 className="epp-title hidden-for-pdf">Buscar Trabajador y Entregas de EPP</h1>
+                <h1 className="epp-title">Buscar Trabajador y Entregas de EPP</h1>
 
-                {/* Búsqueda por cédula */}
                 <div className="epp-search">
                     <input
                         type="text"
-                        id="epp-cedula"
                         className="epp-input"
                         placeholder="Ingrese la cédula"
                         value={cedula}
                         onChange={(e) => setCedula(e.target.value)}
+                        onKeyPress={handleKeyPress}
                     />
-                    <button id="epp-buscar" className="epp-button" onClick={handleBuscarTrabajador}>
+                    <button className="epp-button" onClick={handleBuscarTrabajador}>
                         Buscar
                     </button>
                 </div>
 
-                {/* Información del trabajador */}
                 {trabajador && (
-                    <table id="epp-datos-trabajador" className="epp-datos epp-table epp-worker-info">
-                        <tr className="epp-dato">
-                        <td className="epp-td"> <strong>Nombre del trabajador:</strong> <span className="epp-input" id="epp-nombre">{trabajador.nombre } {trabajador.apellido}</span></td>
-                        </tr>
-                        {/* <div className="epp-dato">
-                            <strong>Apellido:</strong>{" "}
-                            <span id="epp-apellido">{trabajador.apellido}</span>
-                        </div> */}
-                        <div className="epp-dato">
-                            <strong>Cédula:</strong>{" "}
-                            <span id="epp-cedula-trabajador">{trabajador.cedula}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Centro de operacion:</strong> <span id="epp-area">{trabajador.centro_de_operacion}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Cargo:</strong>{" "}
-                            <span id="epp-labor-trabajador">{trabajador.cargo}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Empresa:</strong>{" "}
-                            <span id="epp-labor-trabajador">{trabajador.empresa}</span>
-                        </div>
-                        <div className="epp-dato">
-                            <strong>Contacto:</strong>{" "}
-                            <span id="epp-labor-trabajador">{trabajador.contacto}</span>
-                        </div>
-                    </table>
+                    <div className="epp-info-trabajador">
+                        <h2>Información del Trabajador</h2>
+                        <p><strong>Nombre:</strong> {trabajador.nombre} {trabajador.apellido}</p>
+                        <p><strong>Cédula:</strong> {trabajador.cedula}</p>
+                        <p><strong>Centro de Operación:</strong> {trabajador.centro_de_operacion}</p>
+                        <p><strong>Cargo:</strong> {trabajador.cargo}</p>
+                        <p><strong>Empresa:</strong> {trabajador.empresa}</p>
+                    </div>
                 )}
 
-                {/* Tabla de entregas */}
                 {entregas.length > 0 && (
-                    <div>
-                        <button className="epp-button hidden-for-pdff" onClick={handleDescargarPDF}>
-                            Descargar PDF
+                    <div className="epp-entregas-section">
+                        <h2>Entregas Registradas ({entregas.length})</h2>
+                        <button 
+                            className="epp-button" 
+                            onClick={handleDescargarPDF}
+                            disabled={generandoPDF}
+                        >
+                            {generandoPDF ? 'Generando PDF...' : 'Descargar Todas las Entregas (PDF)'}
                         </button>
-                        <button className="epp-button hidden-for-pdff" onClick={handleDescargarTabla}>
-                             Descargar Tabla
-                        </button>
-                        <table className="epp-table epp-delivery-table">
-                            <thead>
-                                <tr>
-                                    <th className="epp-th">ITEM</th>
-                                    <th className="epp-th">FECHA</th>
-                                    <th className="epp-th">EPP ENTREGADO</th>
-                                    <th className="epp-th">REFERENCIA/TIPO</th>
-                                    <th className="epp-th">NOMBRE QUIEN ENTREGA</th>
-                                    <th className="epp-th">TAREA/LABOR</th>
-                                    <th className="epp-th">HUELLA DIGITAL</th>
-                                </tr>
-                            </thead>
-                            <ul className="epp-lista-entregas">
-                                {entregas.map((entrega, index) => {
-                                    // Validar que la fecha sea válida
-                                    const fechaValida = new Date(entrega.fecha_entrega);
-                                    const fechaFormateada = isNaN(fechaValida) ? "Fecha inválida" : format(fechaValida, "dd/MM/yyyy");
 
-                                    return (
-                                        <li key={entrega._id} className="epp-item-entrega">
-                                            <div className="epp-item-header">
-                                                <strong>Entrega #{index + 1}</strong>
-                                            </div>
-                                            <div className="epp-item-details">
-                                                <p><strong>Fecha:</strong> {fechaFormateada}</p>
-                                                <p><strong>EPP Entregado:</strong> {entrega.epp_entregado}</p>
-                                                <p><strong>Referencia/Tipo:</strong> {entrega.referencia_tipo}</p>
-                                                <p><strong>Nombre Quien Entrega:</strong> {entrega.nombre_hs_entrega}</p>
-                                                <p><strong>Tarea/Labor:</strong> {entrega.tarea_labor}</p>
-                                                <p><strong>Firma:</strong> 
-                                                <img
-                                                        src={entrega.firma}
-                                                        alt="Firma del trabajador"
-                                                        style={{ width: "200px", height: "150px", border: "1px solid #000" }}
-                                                    />
-                                                </p>
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </table>
+                        <div className="epp-entregas-list">
+                            {entregas.map((entrega, index) => {
+                                const fecha = new Date(entrega.fecha_entrega);
+                                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy");
+                                
+                                return (
+                                    <div key={entrega._id} className="epp-entrega-card">
+                                        <div className="epp-entrega-content">
+                                            <h3>Entrega #{index + 1} - {fechaFormateada}</h3>
+                                            <p><strong>EPP:</strong> {entrega.epp_entregado}</p>
+                                            <p><strong>Tipo:</strong> {entrega.referencia_tipo}</p>
+                                            <p><strong>Responsable:</strong> {entrega.nombre_hs_entrega}</p>
+                                            <p><strong>Labor:</strong> {entrega.tarea_labor}</p>
+                                        </div>
+                                        <div className="epp-entrega-firma">
+                                            <p><strong>Firma:</strong></p>
+                                            <img 
+                                                src={entrega.firma} 
+                                                alt="Firma del trabajador" 
+                                                className="epp-firma-img"
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
             </div>
