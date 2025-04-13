@@ -36,6 +36,7 @@ import BuscarTrabajadorEPP from "./pages/productos/BuscarTrabajadorEPP.jsx";
 
 // pages (admin) vista del administrador
 import HomeAdmin from "./pages/admin/HomeAdmin";
+import NuevoUsuario from "./pages/admin/NuevoUsuario.jsx";
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
                   {/* rutas admin */}
                   <Route path="/admin" element={<RutaProtegida rolRequerido="admin" />}> // si no funciona cambiar a RutaProtegida
                     <Route index element={<HomeAdmin />} />
+                    <Route path="/admin/nuevo-usuario" element={<NuevoUsuario />}></Route>
                   </Route>
 
                   {/* rutas usuario hs */}

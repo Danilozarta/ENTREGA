@@ -1,0 +1,13 @@
+[33m931470a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Solucionado el problema de limpiar canvas y tablet al momento de selecionar hacer nueva entrega
+[33m3a4f2b3[m[33m ([m[1;31morigin/main[m[33m)[m Agregada la superposicion de pantalla, solucionados problemas submit de botones
+[33mcce46bd[m Definidos los botones como type= button para dejar de enviar el formulario con ellos, corregida la funcion de limpiar firma para aplicar al canvas y tablet
+[33m5c89638[m Solucionado el problema de campos llenos despues del envio del formulario, agregadas funcionalidades de nuevo registro o volver al inicio en la alerta
+[33md63a74d[m Corregido el problema de carga en login y comentadas las lineas de restablecer contraseña y crear cuenta
+[33m25bcb61[m Agregada la funcionalidad del Rol(hs, admin), ingresa segun la autentificacion del usuario.
+[33me25df87[m registro de huella funcional, problemas en botones a la hora de enviar, envian informacion sin firma y duplican entrega
+[33m6f15e3b[m Se remplazo el los archivos backend el campo huella_digital por firma para que coincidiera con los datos enviados desde el frontend
+[33m12a8879[m firma digital incorporada, se esta enviando en consola pero no se esta recibiendo en la DB, revisar eso y depurar archivos basura agregados en este commit
+[33md3c7418[m[33m ([m[1;32mdeveloper[m[33m)[m Se corrigieron los campos de las DB para captar los datos necesarios
+[33m50648e3[m Se modifico el campo de area por centro_de_operacion y se le dio funcionalidad al campo en la DB
+[33m990a84b[m Se agrego la funcion para descargar el formato de entrega   pdf, falta modificar el diseño del formato para insertar huella y que sea mas legible
+[33mf09430b[m apliacaion funcional, registro de trabajador, entregaEPP(capta datos de fecha local en formato iso), funcional la ventana de buscar trabajador por cedula y muestra toda la informacion a falta de la huella

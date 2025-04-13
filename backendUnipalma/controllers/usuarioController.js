@@ -2,6 +2,7 @@ import Usuario from "../models/Usuario.js";
 import emailRegistro from "../helper/emailRegistro.js";
 import generarJWT from "../helper/generarJWT.js";
 import emailOlvidePassword from "../helper/emailOlvidePassword.js";
+import bcrypt from "bcrypt";
 
 const prueba = (req, res)=>{
     res.send({
@@ -61,20 +62,27 @@ const registrar = async (req, res)=>{
 };
 
 
-const auntenticar = async (req, res)=>{
+const auntenticar = async (req, res) => {
     const { email, password } = req.body;
 
-    const usuario = await Usuario.findOne({email});
+    const usuario = await Usuario.findOne({ email }).select('+confirmado');
 
-    if(!usuario){
-        const error = new Error("Usuario no existe");
-        return res.status(403).json({msg: error.message});
-    };
+    if (!usuario) {
+        return res.status(403).json({ msg: "Credenciales inválidas" });
+    }
 
+    // Verificar si el usuario está bloqueado
+    if (!usuario.confirmado) {
+        return res.status(403).json({ 
+            msg: "Cuenta bloqueada. Contacte al administrador.",
+            errorType: "ACCOUNT_BLOCKED",  // Identificador único para el frontend
+        });
+    }
 
-    // Autenticar el usuario
     // Revisar el password si es correcto
     if( await usuario.comprobarPassword(password)){
+        return res.status(403).json({ msg: "Credenciales inválidas" });
+    }
         // Crear token JWT con el rol incluido
         // Generar token con solo el ID (no enviar objeto completo)
         const token = generarJWT(usuario._id.toString()); // Solo el ID como string
@@ -91,14 +99,35 @@ const auntenticar = async (req, res)=>{
                 rol: usuario.rol,
                 telefono: usuario.telefono,
                 direccion: usuario.direccion,
-                web: usuario.web
+                web: usuario.web,
+                confirmado: usuario.confirmado
             },
             msg: "Usuario auntenticado"    
         });
+};
 
-    }else{
-        const error = new Error("el password es incorrecto");
-        return res.status(403).json({msg: error.message});
+const bloquearUsuario = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.params.id);
+        
+        if (!usuario) {
+            return res.status(404).json({ msg: 'Usuario no encontrado' });
+        }
+
+        // Cambiar el estado (usando el valor del body o alternarlo)
+        const nuevoEstado = req.body.activo !== undefined ? req.body.activo : !usuario.confirmado;
+        usuario.confirmado = nuevoEstado;
+        usuario.token = undefined; // Invalidar token
+        await usuario.save();
+
+        res.json({ 
+            msg: nuevoEstado ? 'Usuario desbloqueado' : 'Usuario bloqueado',
+            usuarioId: usuario._id,
+            confirmado: usuario.confirmado
+        });
+
+    } catch (error) {
+        res.status(500).json({ msg: 'Error al cambiar estado' });
     }
 };
 
@@ -223,58 +252,137 @@ const comprobarToken = async (req, res) =>{
 
 };
 
-const actualizarPassword = async (req, res) => {
-    // Leer los datos
-    const { id } = req.usuario;
-    const { pwd_actual, pwd_nuevo } = req.body;
-  
-    // Comprobar que el veterinario existe
-    const usuario = await Usuario.findById(id);
-    if (!usuario) {
-      const error = new Error("Hubo un error");
-      return res.status(400).json({ msg: error.message });
-    }
-  
-    // Comprobar su password
-    if (await usuario.comprobarPassword(pwd_actual)) {
-      // Almacenar el nuevo password
-  
-      usuario.password = pwd_nuevo;
-      await usuario.save();
-      res.json({ msg: "Password Almacenado Correctamente" });
-    } else {
-      const error = new Error("El Password Actual es Incorrecto");
-      return res.status(400).json({ msg: error.message });
-    }
-};
+
 
 const actualizarPerfil = async (req, res) => {
     const { id } = req.params;
     const usuario = await Usuario.findById(id);
   
     if (!usuario) {
-      return res.status(404).json({ msg: "No Encontrado" });
+      return res.status(404).json({ msg: "Usuario no encontrado" });
     }
   
-    // if (paciente.veterinario._id.toString() !== req.veterinario._id.toString()) {
-    //   return res.json({ msg: "Accion no válida" });
-    // }
+    // Solo admin o el mismo usuario puede actualizar
+    if (req.usuario.rol !== 'admin' && req.usuario._id.toString() !== id) {
+      return res.status(403).json({ msg: "No autorizado" });
+    }
   
     // Actualizar Usuario
     usuario.nombre = req.body.nombre || usuario.nombre;
     usuario.email = req.body.email || usuario.email;
-    usuario.password = req.body.password || usuario.password;
     usuario.telefono = req.body.telefono || usuario.telefono;
     usuario.direccion = req.body.direccion || usuario.direccion;
     usuario.web = req.body.web || usuario.web;
+    usuario.rol = req.body.rol || usuario.rol;
+    usuario.confirmado = req.body.confirmado !== undefined ? req.body.confirmado : usuario.confirmado;
+  
+    try {
+      const usuarioActualizado = await usuario.save();
+      
+      // No devolver el password
+      const { password, ...usuarioSinPassword } = usuarioActualizado.toObject();
+      
+      res.json(usuarioSinPassword);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: "Error al actualizar el perfil" });
+    }
+};
+
+const actualizarPassword = async (req, res) => {
+    const { id } = req.params;
+    const { nuevaPassword } = req.body;
+    const usuarioId = req.usuarioId; // ID del usuario autenticado
+  
+    // Validaciones básicas
+    if (!nuevaPassword || nuevaPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña debe tener al menos 6 caracteres'
+      });
+    }
+  
+    try {
+      // Buscar usuario
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({
+          success: false,
+          message: 'Usuario no encontrado'
+        });
+      }
+  
+      // Solo el mismo usuario o un admin puede cambiar la contraseña
+      if (usuario._id.toString() !== usuarioId && usuario.rol !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'No autorizado para esta acción'
+        });
+      }
+  
+      // Encriptar la nueva contraseña (con await si usas bcrypt.hash)
+      const salt = await bcrypt.genSalt(10);
+      usuario.password = await bcrypt.hash(nuevaPassword, salt);
+      
+      // Guardar cambios
+      await usuario.save();
+      
+      res.json({
+        success: true,
+        message: 'Contraseña actualizada correctamente'
+      });
+    } catch (error) {
+      console.error('Error al actualizar contraseña:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error del servidor',
+        error: error.message
+      });
+    }
+  };
+
+const actualizarUsuario = async (req, res) => {
+    const { id } = req.params;
+    const usuario = await Usuario.findById(id);
+  
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+  
+    // Actualizar campos permitidos
+    usuario.nombre = req.body.nombre || usuario.nombre;
+    usuario.email = req.body.email || usuario.email;
+    usuario.rol = req.body.rol || usuario.rol;
+    usuario.confirmado = typeof req.body.confirmado !== 'undefined' ? req.body.confirmado : usuario.confirmado;
   
     try {
       const usuarioActualizado = await usuario.save();
       res.json(usuarioActualizado);
     } catch (error) {
       console.log(error);
+      res.status(500).json({ msg: "Error al actualizar usuario" });
     }
 };
+
+const cambiarPasswordAdmin = async (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+  
+    const usuario = await Usuario.findById(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+    }
+  
+    try {
+      usuario.password = password;
+      await usuario.save();
+      res.json({ msg: "Contraseña actualizada correctamente" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: "Error al cambiar contraseña" });
+    }
+};
+
 
 export {
     prueba,
@@ -287,5 +395,8 @@ export {
     nuevoPassword,
     comprobarToken,
     actualizarPassword,
-    actualizarPerfil
+    actualizarPerfil,
+    bloquearUsuario,
+    actualizarUsuario,
+    cambiarPasswordAdmin
 };
