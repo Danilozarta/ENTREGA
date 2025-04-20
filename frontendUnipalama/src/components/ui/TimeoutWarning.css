@@ -1,0 +1,65 @@
+.timeout-warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .timeout-warning-modal {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+  }
+  
+  .timeout-warning-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .timeout-warning-message {
+    margin-bottom: 2rem;
+    color: #666;
+  }
+  
+  .timeout-warning-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .timeout-warning-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .timeout-warning-button-logout {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+  
+  .timeout-warning-button-logout:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .timeout-warning-button-stay {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .timeout-warning-button-stay:hover {
+    background-color: #2563eb;
+  }

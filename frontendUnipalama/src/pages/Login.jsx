@@ -56,13 +56,15 @@ const Login = () => {
     const { msg } = alerta;
 
     return (
+        
+        
         <div className="min-h-screen flex flex-col">
             {/* Header */}
             <header className="header-epp bg-white shadow-md py-4">
                 <div className="container mx-auto flex justify-center">
                     <img 
                         src={imgLogin} 
-                        alt="Logo Unipalma" 
+                        alt="LOGO HORIZONTAL" 
                         className="logo-epp h-16" 
                     />
                 </div>
@@ -72,7 +74,7 @@ const Login = () => {
             <main className="main-container-epp flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
-                        <h1 className="h1-login-epp text-3xl font-extrabold text-gray-900">
+                        <h1 className="h1-login-epp text-3xl font-extrabold text-black">
                             Iniciar sesión
                         </h1>
                     </div>
@@ -130,7 +132,7 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={cargando}
-                                className={`w-full py-3 px-4 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md font-medium text-base sm:text-sm transition-colors duration-200 ${cargando ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                className={`w-full py-3 px-4 text-white bg-[#2a8e00] hover:bg-[#84b321] rounded-md font-medium text-base sm:text-sm transition-colors duration-200 ${cargando ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                 {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
                             </button>
                         </div>
@@ -149,7 +151,7 @@ const Login = () => {
 
             {/* Footer */}
             <footer className="footer-epp bg-white py-4">
-                <div className="container mx-auto text-center text-gray-500 text-sm">
+                <div className="container mx-auto text-center text-white text-sm">
                     <p>&copy; {new Date().getFullYear()} Unipalma. Todos los derechos reservados.</p>
                 </div>
             </footer>

@@ -11,7 +11,65 @@ export const AuthProvider = ({ children }) => {
         rol: null,
         auth: false
     });
+    const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+    const [inactivityTimer, setInactivityTimer] = useState(null);
+    const [warningTimer, setWarningTimer] = useState(null);
 
+    // Tiempos en milisegundos (ajusta según necesites)
+    const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // minutos
+    // const WARNING_TIMEOUT =  2 * 1000; // minutos antes
+
+    // Reiniciar el temporizador de inactividad
+    const resetInactivityTimer = () => {
+        setShowTimeoutWarning(false);
+        
+        // Limpiar temporizador existente
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+        }
+
+        // Mostrar advertencia 5 minutos antes
+        // const warningTimer = setTimeout(() => {
+        //     setShowTimeoutWarning(true);
+        // }, WARNING_TIMEOUT);
+
+        // Cerrar sesión después del tiempo completo
+        const timer = setTimeout(() => {
+            cerrarSesion();
+        }, INACTIVITY_TIMEOUT);
+
+        setInactivityTimer(timer);
+    };
+
+    // Detectar actividad del usuario
+    useEffect(() => {
+        const events = ['mousedown', 'keypress', 'scroll', 'touchstart'];
+        
+        const handleActivity = () => {
+            if (auth.auth) { // Solo si está autenticado
+                resetInactivityTimer();
+            }
+        };
+
+        events.forEach(event => {
+            window.addEventListener(event, handleActivity);
+        });
+
+        return () => {
+            events.forEach(event => {
+                window.removeEventListener(event, handleActivity);
+            });
+        };
+    }, [auth.auth]);
+
+    // Iniciar temporizador cuando el usuario se autentica
+    useEffect(() => {
+        if (auth.auth) {
+            resetInactivityTimer();
+        }
+    }, [auth.auth]);
+
+    // Autenticar usuario al cargar
     useEffect(() => {
         const autenticarUsuario = async () => {
             const token = localStorage.getItem('token');
@@ -33,8 +91,8 @@ export const AuthProvider = ({ children }) => {
                 
                 setAuth({
                     token,
-                    usuario: data.usuario, // Asegúrate que tu backend devuelve el objeto usuario
-                    rol: data.usuario.rol, // Asume que el rol viene en data.usuario.rol
+                    usuario: data.usuario,
+                    rol: data.usuario.rol,
                     auth: true
                 });
                 
@@ -53,35 +111,57 @@ export const AuthProvider = ({ children }) => {
         autenticarUsuario();
     }, []);
 
-    // Función para login que ahora maneja el rol
     const login = async (email, password) => {
         try {
+            // Validación básica en frontend
+            if (!email || !password) {
+                return {
+                    ok: false,
+                    msg: 'Email y contraseña son requeridos'
+                };
+            }
+
             const { data } = await clienteAxios.post('/usuarios/login', { email, password });
+
+            // Validación exhaustiva de la respuesta
+            if (!data.token || !data.usuario || !data.usuario._id) {
+                throw new Error('Respuesta de autenticación inválida');
+            }
             
-             // Establece el token en localStorage y en axios
             localStorage.setItem('token', data.token);
             clienteAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
             
-            // Actualiza el estado auth
             setAuth({
                 token: data.token,
                 usuario: data.usuario,
-                rol: data.usuario.rol, // Asegúrate que el backend devuelve el rol
+                rol: data.usuario.rol,
                 auth: true
             });
             
+            resetInactivityTimer(); // Reiniciar temporizador al iniciar sesión
+            
             return {
-                    ok: true,
-                    rol:data.usuario.rol};
+                ok: true,
+                rol: data.usuario.rol,
+                usuario: data.usuario // Devuelve el usuario completo para validación
+            };
         } catch (error) {
+            console.error('Error en login:', error);
             return {
                 ok: false,
-                msg: error.response?.data?.msg || 'Error al iniciar sesión'
+                msg: error.response?.data?.msg || 'Credenciales incorrectas',
+                error: error
             };
         }
     };
 
     const cerrarSesion = () => {
+        // Limpiar temporizadores
+        if (inactivityTimer) {
+            clearTimeout(inactivityTimer);
+        }
+        setShowTimeoutWarning(false);
+        
         localStorage.removeItem('token');
         setAuth({
             token: null,
@@ -158,7 +238,10 @@ export const AuthProvider = ({ children }) => {
                 login, // Añadida la función de login
                 cerrarSesion,
                 actualizarPerfil,
-                guardarPassword
+                guardarPassword,
+                showTimeoutWarning,
+                setShowTimeoutWarning,
+              
             }}
         >
             {children}

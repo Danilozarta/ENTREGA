@@ -16,7 +16,7 @@ import {
 } from "../controllers/usuarioController.js";
 import { checkAuth, checkRol } from "../middleware/authMiddleware.js";
 import checkStatus from "../middleware/checkStatus.js";
-import validarJWT from "../helper/validarJWT.js";
+import Usuario from "../models/Usuario.js";
 
 const router = express.Router();
 const adminRouter = express.Router();
@@ -34,7 +34,7 @@ router.get('/perfil', checkAuth, perfil);
 router.put("/actualizar-password", checkAuth, actualizarPassword);
 router.get('/', checkAuth, usuarioRegistrados);
 router.put('/:id', checkAuth, actualizarPerfil);
-router.put('/:id/password', validarJWT, actualizarPassword);
+router.put('/:id/password', checkAuth, actualizarPassword); // Cambiado de validarJWT a checkAuth
 
 // ========== RUTAS DE ADMINISTRADOR ========== //
 // Aplicar middlewares a todas las rutas admin
@@ -43,17 +43,17 @@ adminRouter.use(checkAuth, checkRol(['admin']));
 // Rutas de administración de usuarios
 adminRouter.get("/usuarios", usuarioRegistrados);
 adminRouter.put("/usuarios/:id", actualizarPerfil);
-adminRouter.put("/usuarios/:id/password", actualizarPassword);
+adminRouter.put("/usuarios/:id/password", checkAuth, checkRol(['admin']), actualizarPassword);
 adminRouter.put("/usuarios/:id/estado", bloquearUsuario);
 
 // Montar las rutas admin bajo el prefijo /admin
 router.use('/admin', adminRouter);
 
 // Nueva ruta para actualizar usuario (incluye bloquear/desbloquear)
-router.put('/:id', actualizarUsuario);
+router.put('/:id', checkAuth, actualizarUsuario); // Añadido checkAuth
 
 // Ruta para cambiar contraseña desde admin
-router.put('/:id/password', cambiarPasswordAdmin);
+router.put('/:id/password', checkAuth, checkRol(['admin']), cambiarPasswordAdmin); // Añadido middleware
 
 // ========== RUTAS DE VERIFICACIÓN ========== //
 router.get('/verificar-sesion', checkAuth, async (req, res) => {

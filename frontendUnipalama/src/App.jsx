@@ -38,11 +38,14 @@ import BuscarTrabajadorEPP from "./pages/productos/BuscarTrabajadorEPP.jsx";
 import HomeAdmin from "./pages/admin/HomeAdmin";
 import NuevoUsuario from "./pages/admin/NuevoUsuario.jsx";
 
+import TimeoutWarning from "./components/ui/TimeoutWarning";
+
 function App() {
   return (
     
       <Router>
         <AuthProvider>
+        
           <UsuariosProvider>
             <ProductosProvider>
               <VentaProvider>
@@ -50,6 +53,7 @@ function App() {
                   {/* RUTAS PUBLICAS */}
                   <Route path="/" element={<LayoutAuth />}>
                     <Route index element={<Login />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="registro" element={<Registro />} />
                     <Route path="olvide-password" element={<OlvidePassword />} />
                     <Route path="confirmar/:id" element={<Confirmar />} />
@@ -109,6 +113,7 @@ function App() {
               </VentaProvider>
             </ProductosProvider>
           </UsuariosProvider>
+          <TimeoutWarning />
         </AuthProvider>
       </Router>
   );

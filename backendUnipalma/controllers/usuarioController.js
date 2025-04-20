@@ -65,45 +65,60 @@ const registrar = async (req, res)=>{
 const auntenticar = async (req, res) => {
     const { email, password } = req.body;
 
-    const usuario = await Usuario.findOne({ email }).select('+confirmado');
-
-    if (!usuario) {
-        return res.status(403).json({ msg: "Credenciales inválidas" });
+    // Validación básica de campos
+    if (!email || !password) {
+        return res.status(400).json({ msg: "Email y contraseña son requeridos" });
     }
 
-    // Verificar si el usuario está bloqueado
-    if (!usuario.confirmado) {
-        return res.status(403).json({ 
-            msg: "Cuenta bloqueada. Contacte al administrador.",
-            errorType: "ACCOUNT_BLOCKED",  // Identificador único para el frontend
-        });
-    }
+    try {
+        // Buscar usuario incluyendo el campo de password (necesario para bcrypt)
+        const usuario = await Usuario.findOne({ email })
+            .select('+password +confirmado');
 
-    // Revisar el password si es correcto
-    if( await usuario.comprobarPassword(password)){
-        return res.status(403).json({ msg: "Credenciales inválidas" });
-    }
-        // Crear token JWT con el rol incluido
-        // Generar token con solo el ID (no enviar objeto completo)
-        const token = generarJWT(usuario._id.toString()); // Solo el ID como string
+        if (!usuario) {
+            return res.status(403).json({ msg: "Credenciales inválidas" });
+        }
+
+        // Verificar si el usuario está bloqueado
+        if (!usuario.confirmado) {
+            return res.status(403).json({ 
+                msg: "Cuenta bloqueada. Contacte al administrador.",
+                errorType: "ACCOUNT_BLOCKED",
+            });
+        }
+
+        // Validación CORREGIDA de contraseña
+        const passwordValido = await usuario.comprobarPassword(password);
+        if (!passwordValido) {
+            return res.status(403).json({ msg: "Credenciales inválidas" });
+        }
+
+        // Generar token JWT
+        const token = generarJWT(usuario._id.toString());
         
-     
-        // Devolver datos relevantes del usuario
-        //poner en esta linea los campos que quiero que me devuelva del hs para el formato de entrega EPP(nombre, numero, cedula..etc)
+        // Respuesta exitosa
         res.json({ 
             token,
             usuario: {
                 _id: usuario._id,
-                nombre: usuario.nombre, // Enviar el nombre del usuario
+                nombre: usuario.nombre,
                 email: usuario.email,
                 rol: usuario.rol,
                 telefono: usuario.telefono,
                 direccion: usuario.direccion,
-                web: usuario.web,
-                confirmado: usuario.confirmado
+                web: usuario.web
+                // No enviar confirmado ni password por seguridad
             },
-            msg: "Usuario auntenticado"    
+            msg: "Autenticación exitosa"    
         });
+
+    } catch (error) {
+        console.error('Error en autenticación:', error);
+        return res.status(500).json({ 
+            msg: "Error en el servidor",
+            error: error.message 
+        });
+    }
 };
 
 const bloquearUsuario = async (req, res) => {
@@ -292,7 +307,7 @@ const actualizarPerfil = async (req, res) => {
 const actualizarPassword = async (req, res) => {
     const { id } = req.params;
     const { nuevaPassword } = req.body;
-    const usuarioId = req.usuarioId; // ID del usuario autenticado
+    
   
     // Validaciones básicas
     if (!nuevaPassword || nuevaPassword.length < 6) {
@@ -303,7 +318,7 @@ const actualizarPassword = async (req, res) => {
     }
   
     try {
-      // Buscar usuario
+      // Buscar usuario a actualizar usando findByIdAndUpdate para activar hooks
       const usuario = await Usuario.findById(id);
       if (!usuario) {
         return res.status(404).json({
@@ -313,19 +328,24 @@ const actualizarPassword = async (req, res) => {
       }
   
       // Solo el mismo usuario o un admin puede cambiar la contraseña
-      if (usuario._id.toString() !== usuarioId && usuario.rol !== 'admin') {
+      if (req.usuario.rol !== 'admin' && req.usuario.id !== usuario._id.toString()) {
         return res.status(403).json({
-          success: false,
-          message: 'No autorizado para esta acción'
+            success: false,
+            msg: 'No tienes permisos para esta acción'
         });
-      }
+    }
   
       // Encriptar la nueva contraseña (con await si usas bcrypt.hash)
-      const salt = await bcrypt.genSalt(10);
-      usuario.password = await bcrypt.hash(nuevaPassword, salt);
-      
-      // Guardar cambios
-      await usuario.save();
+    //   const salt = await bcrypt.genSalt(10);
+    //   usuario.password = await bcrypt.hash(nuevaPassword, salt);
+
+        // Asignar la contraseña en texto plano - el hook se encargará del hashing
+        usuario.password = nuevaPassword;
+
+        // Guardar cambios (activará el hook pre('save'))
+        await usuario.save();
+        
+
       
       res.json({
         success: true,

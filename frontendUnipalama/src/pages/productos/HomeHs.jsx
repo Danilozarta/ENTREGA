@@ -59,7 +59,7 @@ const ListaProductos = () => {
                     </Link>
                 </div>
                 <div className="action-box-unipalma">
-                    <h2 className="action-title-unipalma">Buscar Entregas</h2>
+                    <h2 className="action-title-unipalma">Registro de Entregas</h2>
                     <Link to="/buscar-trabajador-epp" className="action-btn-unipalma">
                         Buscar
                     </Link>

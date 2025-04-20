@@ -55,11 +55,19 @@ const usuarioShema = mongoose.Schema({
 // https://www.npmjs.com/package/bcryptjs
 // https://www.npmjs.com/package/bcrypt
 usuarioShema.pre('save', async function (next) {
+    // Solo hashear si el password fue modificado
     if (!this.isModified('password')) {
+        return next(); // Usar return para evitar ejecución adicional
+    }
+    
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(this.password, salt);
+        this.password = hashedPassword;
         next();
-    };
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    } catch (error) {
+        next(error);
+    }
 });
 
 // Confirmar password del usuario, esta funcion devuelve verdadero o falso

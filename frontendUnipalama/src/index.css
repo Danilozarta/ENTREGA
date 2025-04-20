@@ -236,51 +236,128 @@
 }
 
 
-/*-----Login------*/
-.main-container-login{
+/*  pagina                          de                                 login */
+  /*  pagina                          de                                 login  */
+  /*  pagina                          de                                 login */
+
+
+  /* Estilos generales */
+
+  .body-login {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+  }
+  
+  /* Header */
+  .header-epp {
+    background-color: #2a8e00;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .logo-epp {
+    max-width: 150px;
+    height: auto;
+  }
+  
+  /* Contenedor principal */
+  .main-container-epp {
     display: flex;
+    justify-content: center;
     align-items: center;
-    flex-direction: row-reverse;
-}
-.title-login{
-    font-size: 35px;
-    color: #114848;
-}
-.form-login{
-    background-color: white;
-    box-shadow: 3px 3px 5px 5px #605a5a, 1px 3px 9px #706b6b;
+    min-height: 60vh;
+    padding: 20px;
+  }
+  
+  /* Contenedor del login */
+  .login-container-epp {
+    background-color: #ffffff;
     border-radius: 10px;
-}
-.btn-login{
-    background-color: #114848;
-}
-
-.img-logo-login {
-    width: 40%;
-    height: 50%;
-    background-color: white;
-}
-.img-logo-login img {
-    border-radius: 10px;
-}
-.form-register{
-    box-shadow: 3px 3px 5px 5px #605a5a, 1px 3px 9px #706b6b;
-}
-.btn-register{
-    background-color: #114848;
-}
-
-@media(max-width: 1023px){
-    .img-logo-login{
-        display: none;
-    }
-}
-@media(max-width: 450px){
-    .container-login {
-        position: absolute;
-        left: 3px;
-    }
-}
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .h1-login-epp {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+  }
+  
+  /* Formulario */
+  .form-epp {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-group-epp {
+    margin-bottom: 20px;
+  }
+  
+  .label-login-epp {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+    color: #555;
+  }
+  
+  .input-login-epp {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #2a8e00;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-login-epp:focus {
+    border-color: #3498db;
+  }
+  
+  /* Botón */
+  .boton-entrar-epp {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .boton-entrar-epp:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Mensaje de error */
+  .error-message-epp {
+    color: #e74c3c;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+  }
+  
+  /* Footer */
+  .footer-epp {
+    background-color: #2a8e00;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+  }
 
 /*------Shopping cart--------*/
 .container-shopping{
@@ -544,8 +621,8 @@
   /*  pagina                            de                 inicio  */
   /*  pagina                            de                 inicio  */
   
-  /* Estilos generales */
-  body {
+   /* Estilos generales */
+   body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
@@ -555,13 +632,13 @@
   
   /* Navbar */
   .shadow{
-    background-color: #2c3e50;
+    background-color: #2a8e00;
   }
   .nav-unipalma {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #2c3e50;
+    background-color: #ffffff;
     padding: 15px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
@@ -656,7 +733,7 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin: 40px 0;
+    margin: px 185;
   }
   
   .action-box-unipalma {
@@ -684,7 +761,7 @@
   .action-btn-unipalma {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #3498db;
+    background-color: #2a8e00;
     color: #fff;
     text-decoration: none;
     border-radius: 25px;
@@ -692,18 +769,19 @@
   }
   
   .action-btn-unipalma:hover {
-    background-color: #2980b9;
+    background-color: #84b321;
   }
   
   /* Footer */
   .footer-unipalma {
     text-align: center;
     padding: 2px;
-    background-color: #2c3e50;
+    background-color: #2a8e00;
     color: #fff;
     position: fixed;
     bottom: 0;
     width: 100%;
+     left: 0;
   }
   
   /* Responsive Design */
@@ -740,6 +818,7 @@
         width: 80%;
     }
   }
+
   
   
   /* pagina                      registro              de                        empleado */
@@ -764,12 +843,12 @@
   /* Estilos para el menú de navegación */
   .nav-registro {
       width: 100%;
-      background-color: #2c3e50;
+      background-color: #ffffff;
       padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
   }
   
   .nav-registro .menu {
@@ -881,22 +960,22 @@
     outline: none;
 }
   
-  .registro-form .registro-button {
-      width: 100%;
-      padding: 12px;
-      background-color: #1abc9c;
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-  }
+.registro-form .registro-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #2a8e00;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
   
-  .registro-form .registro-button:hover {
-      background-color: #16a085;
-  }
+.registro-form .registro-button:hover {
+  background-color: #84b321;
+}
   
   /* Media Queries para hacer el diseño responsivo */
   @media (max-width: 768px) {
@@ -904,7 +983,7 @@
           display: none;
           flex-direction: column;
           width: 100%;
-          background-color: #2c3e50;
+          background-color: #ffffff;
           position: absolute;
           top: 60px;
           left: 0;
@@ -1004,12 +1083,18 @@
   }
   
   .epp-button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: #fff;
+    padding: 12px 20px;
+    background-color: #2a8e00;
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+
+  .epp-button:hover {
+    background-color: #74b331;
   }
   
   .epp-button-cancel {
@@ -1341,12 +1426,7 @@
   min-height: 100vh;
 }
 
-/* Barra de navegación */
-.nav-registro {
-  background-color: #2c3e50;
-  padding: 15px 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+
 
 .menu {
   display: flex;
@@ -1705,9 +1785,9 @@
 
 /* Header */
 .admin-header {
-  background-color: #2c3e50;
+  background-color: #ffffff;
   color: white;
-  padding: 1rem 2rem;
+  padding: 0rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1721,7 +1801,7 @@
 }
 
 .admin-logout-btn {
-  background-color: #e74c3c;
+  background-color: #ffffff;
   color: white;
   border: none;
   padding: 0.5rem 1rem;

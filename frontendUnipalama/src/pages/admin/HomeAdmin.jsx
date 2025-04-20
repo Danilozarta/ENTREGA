@@ -74,6 +74,7 @@ const PanelAdministracion = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         alert('No estás autenticado');
+        navigate('/'); // Redirige a la página principal en lugar de /login
         return;
       }
   
@@ -85,10 +86,11 @@ const PanelAdministracion = () => {
         { nuevaPassword },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'x-token': token // Usar el mismo nombre que en el backend
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
           }
-        }
+      }
+        
       );
       
       if (response.data.success) {
@@ -101,7 +103,7 @@ const PanelAdministracion = () => {
       if (error.response?.status === 401) {
         alert('Sesión expirada. Por favor inicia sesión nuevamente');
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        navigate('/');
       } else {
         alert(`Error: ${error.response?.data?.message || error.message}`);
       }
