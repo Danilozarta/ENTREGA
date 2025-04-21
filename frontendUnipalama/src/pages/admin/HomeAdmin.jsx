@@ -13,9 +13,19 @@ const PanelAdministracion = () => {
     obtenerUsuarios();
   }, []);
 
-  const obtenerUsuarios = async () => {
+  
+  useEffect(() => {
+    obtenerUsuarios();
+  }, [location.key]);
+  
+
+  const obtenerUsuarios = async (force= false) => {
     try {
+     
+      
       setLoading(true);
+
+
       const token = localStorage.getItem('token');
       const config = {
         headers: {
@@ -27,6 +37,9 @@ const PanelAdministracion = () => {
       setUsuarios(data);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
+      if (error.response?.status === 401) {
+        navigate('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -46,9 +59,14 @@ const PanelAdministracion = () => {
           confirmado: !confirmadoActual
         }, config);
         
-        obtenerUsuarios();
+        // Actualización optimista
+        setUsuarios(prev => prev.map(u => 
+          u._id === id ? { ...u, confirmado: !confirmadoActual } : u
+        ));
       } catch (error) {
         console.error('Error al bloquear/desbloquear usuario:', error);
+        alert('Error al actualizar usuario');
+        obtenerUsuarios();
       }
     }
   };

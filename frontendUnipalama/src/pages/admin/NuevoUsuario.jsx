@@ -24,7 +24,7 @@ const NuevoUsuario = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    // setError(null);
     
     try {
       const token = localStorage.getItem('token');
@@ -44,9 +44,14 @@ const NuevoUsuario = () => {
       });
       
       // Redirigir después de 2 segundos
-      setTimeout(() => {
-        navigate('/admin');
-      }, 2000);
+      // setTimeout(() => {
+      //   navigate('/admin');
+      // }, 2000);
+
+      navigate('/admin', {
+        state: { shouldRefresh: true } // Bandera para indicar recarga
+      });
+      
     } catch (error) {
       setError(error.response?.data?.msg || 'Error al crear usuario');
     } finally {

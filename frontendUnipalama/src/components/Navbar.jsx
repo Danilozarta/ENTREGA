@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom"; // Agrega useNavigate
+import imgLogo from "../assets/UnipalmaLogo.png"
 
 const Navbar = () => {
     const { auth, cerrarSesion } = useAuth(); // Extrae el estado de autenticación y la función de cerrarSesion
@@ -26,9 +27,11 @@ const Navbar = () => {
         <nav className="shadow bg-slate-100 mb-5 flex fixed z-10 w-full top-0 justify-between items-center p-4">
             {/* Logo o título */}
             <Link to="/homeHs" className="home-nabvar">
-            <h1 className="title-navbar">
-                UNI<span className="color-title-navbar">PALMA</span>
-            </h1>
+            <img 
+                             src={imgLogo} 
+                            alt="LOGO HORIZONTAL" 
+                            className="logo-epp h-16" 
+            />
             </Link>
 
             {/* Menú de usuario */}

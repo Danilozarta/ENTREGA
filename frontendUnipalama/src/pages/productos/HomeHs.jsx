@@ -89,7 +89,8 @@ const ListaProductos = () => {
 
             {/* Footer */}
             <footer className="footer-unipalma">
-                <p>&copy; 2025 Unipalma. Todos los derechos reservados.</p>
+                <p><span> Unipalma &copy;  {new Date().getFullYear()} </span> Todos los derechos reservados.  </p>
+
             </footer>
         </div>
     );

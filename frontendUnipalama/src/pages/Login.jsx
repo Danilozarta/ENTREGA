@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import Alerta from '../components/Alerta';
 import clienteAxios from '../config/axios';
 
-import imgLogin from '../assets/Unipalma-Vertical-Slogan-01.png';
+import imgLogin from '../assets/UnipalmaLogo.png';
 import fondoLogin from '../assets/neodevs.png';
 
 const Login = () => {
@@ -152,7 +152,7 @@ const Login = () => {
             {/* Footer */}
             <footer className="footer-epp bg-white py-4">
                 <div className="container mx-auto text-center text-white text-sm">
-                    <p>&copy; {new Date().getFullYear()} Unipalma. Todos los derechos reservados.</p>
+                    <p><span> Unipalma &copy;  {new Date().getFullYear()} </span> Todos los derechos reservados.  </p>
                 </div>
             </footer>
         </div>

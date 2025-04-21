@@ -357,6 +357,11 @@
     position: fixed;
     width: 100%;
     bottom: 0;
+    display: flex;
+  }
+
+  .footer-epp p span{
+    color: #a08c3d;
   }
 
 /*------Shopping cart--------*/
@@ -632,7 +637,7 @@
   
   /* Navbar */
   .shadow{
-    background-color: #2a8e00;
+    background-color: #487d32;
   }
   .nav-unipalma {
     display: flex;
@@ -776,13 +781,16 @@
   .footer-unipalma {
     text-align: center;
     padding: 2px;
-    background-color: #2a8e00;
+    background-color: #487d32;
     color: #fff;
     position: fixed;
     bottom: 0;
     width: 100%;
      left: 0;
   }
+  /* .footer-unipalma p span{
+    color: #a08c3d;
+  } */
   
   /* Responsive Design */
   @media (max-width: 768px) {
