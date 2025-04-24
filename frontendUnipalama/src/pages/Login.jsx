@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import Alerta from '../components/Alerta';
 import clienteAxios from '../config/axios';
 
-import imgLogin from '../assets/UnipalmaLogo.png';
+import imgLogin from '../assets/svg/LOGO HORIZONTAL.png';
 import fondoLogin from '../assets/neodevs.png';
 
 const Login = () => {

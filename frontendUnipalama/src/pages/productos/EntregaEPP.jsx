@@ -151,8 +151,7 @@ const EntregaEPP = () => {
                         <div className="epp-dato"><strong>Nombre:</strong> {trabajador.nombre}</div>
                         <div className="epp-dato"><strong>Apellido:</strong> {trabajador.apellido}</div>
                         <div className="epp-dato"><strong>Cédula:</strong> {trabajador.cedula}</div>
-                        <div className="epp-dato"><strong>Área:</strong> {trabajador.area}</div>
-                        <div className="epp-dato"><strong>Labor:</strong> {trabajador.labor}</div>
+                       
                     </div>
                 )}
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom"; // Agrega useNavigate
-import imgLogo from "../assets/UnipalmaLogo.png"
+import imgLogo from "../assets/svg/LOGO HORIZONTAL.png"
 
 const Navbar = () => {
     const { auth, cerrarSesion } = useAuth(); // Extrae el estado de autenticación y la función de cerrarSesion

@@ -515,7 +515,7 @@
   
   /* Header */
   .header-epp {
-    background-color: #2c3e50ea;
+    background-color: #2a8e00;
     padding: 20px;
     text-align: center;
   }
@@ -612,7 +612,7 @@
   
   /* Footer */
   .footer-epp {
-    background-color: #2c3e50;
+    background-color: #2a8e00;
     color: #fff;
     text-align: center;
     padding: 10px;
@@ -637,7 +637,7 @@
   
   /* Navbar */
   .shadow{
-    background-color: #487d32;
+    background-color: #2a8e00;
   }
   .nav-unipalma {
     display: flex;
@@ -781,7 +781,7 @@
   .footer-unipalma {
     text-align: center;
     padding: 2px;
-    background-color: #487d32;
+    background-color: #2a8e00;
     color: #fff;
     position: fixed;
     bottom: 0;
@@ -913,14 +913,16 @@
   
   /* Estilos para el formulario */
   .registro-container {
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 400px;
-      margin-top: 20px;
-  }
+   
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 450px;
+    margin: 90px auto; /* Cambiado para centrar horizontalmente */
+    position: relative; /* Para posicionamiento si es necesario */
+}
   
   .registro-container h2 {
       margin-bottom: 20px;
@@ -1227,7 +1229,7 @@
 }
 
 .epp-button.conectar {
-  background-color: #4CAF50;
+  background-color: #2a8e00;
   color: white;
 }
 
@@ -1497,7 +1499,7 @@
 
 .epp-button {
   padding: 12px 20px;
-  background-color: #3498db;
+  background-color: #2a8e00;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1507,7 +1509,7 @@
 }
 
 .epp-button:hover {
-  background-color: #2980b9;
+  background-color: #84b321;
 }
 
 .epp-button.disabled {
