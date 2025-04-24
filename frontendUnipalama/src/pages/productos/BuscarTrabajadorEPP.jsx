@@ -89,7 +89,7 @@ const BuscarTrabajadorEPP = () => {
             for (let i = 0; i < entregas.length; i++) {
                 const entrega = entregas[i];
                 const fecha = new Date(entrega.fecha_entrega);
-                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy");
+                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy hh:mm a");
 
                 if (yPosition > pageHeight - 60) {
                     pdf.addPage();
@@ -228,7 +228,7 @@ const BuscarTrabajadorEPP = () => {
                         <div className="epp-entregas-list">
                             {entregas.map((entrega, index) => {
                                 const fecha = new Date(entrega.fecha_entrega);
-                                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy");
+                                const fechaFormateada = isNaN(fecha) ? "Fecha inválida" : format(fecha, "dd/MM/yyyy hh:mm a");
                                 
                                 return (
                                     <div key={entrega._id} className="epp-entrega-card">
