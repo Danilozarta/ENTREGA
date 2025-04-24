@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import FirmaDigital from '../../components/FirmaDigital';
+import  useAuth  from "../../hooks/useAuth.jsx";
 
 const EntregaEPP = () => {
     const navigate = useNavigate();
@@ -18,13 +19,15 @@ const EntregaEPP = () => {
     // Referencia al componente FirmaDigital para acceder a sus métodos
     const firmaDigitalRef = useRef(null);
 
+    const { auth } = useAuth();
+
     // Recuperar el nombre del usuario al cargar el componente
     useEffect(() => {
-        const nombreUsuario = localStorage.getItem('nombreUsuario');
-        if (nombreUsuario) {
-            setNombreEntrega(nombreUsuario);
-        }
-    }, []);
+        const nombreUsuario = auth.usuario?.nombre || 'HS No Identificado';
+            if (nombreUsuario) {
+                setNombreEntrega(nombreUsuario);
+            }
+        }, [auth]);
 
     const handleBuscarTrabajador = async () => {
         try {
